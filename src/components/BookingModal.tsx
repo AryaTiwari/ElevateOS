@@ -82,28 +82,31 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
       Timestamp: timestamp,
     };
 
-    // Fire-and-forget to Google Apps Script. `mode: 'no-cors'` means the
-    // browser deliberately hides the response from us (status, body — all
-    // of it) as a security rule, not a bug — so this request can never be
-    // used as a real success/failure check. It only sends the data; treat
-    // it as best-effort.
-    try {
-      fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify(directPayload),
-      }).catch((err) => console.error('Google Apps Script submit error:', err));
-    } catch (err) {
-      console.error('Google Apps Script submit error:', err);
-    }
+    // Best-effort background send, fully sealed off in its own async IIFE.
+    // Nothing inside this block — a rejected fetch, a thrown error, a
+    // blocked request, anything — can ever reach the code below it. It's
+    // wrapped, awaited nowhere, and its own try/catch swallows everything.
+    void (async () => {
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(directPayload),
+        });
+      } catch (err) {
+        console.error('Google Apps Script submit error (non-blocking):', err);
+      }
+    })();
 
-    // No /api route exists on a static host like GitHub Pages, so there is
-    // nothing to await here — the block that used to call
-    // /api/book-strategy-session and parse its JSON response is removed.
-    // Short delay so the submitting state reads as real, then show success.
+    // The success screen below does not depend on the block above in any
+    // way — it runs unconditionally. No /api route exists on a static host
+    // like GitHub Pages, so there is nothing to await or parse here; the
+    // old block that called /api/book-strategy-session and parsed its
+    // response as JSON is gone for good.
+    const submittedSnapshot = { ...formData } as BookingFormData;
     setTimeout(() => {
-      setLastSubmittedData({ ...formData } as BookingFormData);
+      setLastSubmittedData(submittedSnapshot);
       setFormData({
         fullName: '',
         phoneNumber: '',
@@ -113,7 +116,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
       });
       setIsSubmitting(false);
       setSubmitted(true);
-    }, 700);
+    }, 600);
   };
 
   return (
