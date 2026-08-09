@@ -1,0 +1,6 @@
+{
+  "name": "Elevate OS",
+  "description": "The Operating System for Creators — strategy, psychology, and systems for ambitious creators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
