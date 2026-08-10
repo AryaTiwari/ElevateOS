@@ -1,31 +1,21 @@
-import express from "express";
-import path from "path";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { generateRuleBasedDiagnosis } from "./src/utils/creatorStrategist.ts";
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const strategySubmissions: any[] = [];
 
-  app.use(express.json());
+export async function handleDiagnose(body: any, apiKey?: string) {
+  const { creatorName, niche, followers, mainGoal, currentBottleneck } = body || {};
 
-  // API endpoint for AI Creator OS Growth Audit & Strategic Diagnosis
-  app.post("/api/diagnose", async (req, res) => {
+  const name = creatorName || "Creator";
+  const primaryNiche = niche || "Tech, AI & Software";
+  const audienceScale = followers || "Early Stage — 0–5K";
+  const primaryGoal = mainGoal || "Gain Views, Followers & Likes";
+  const mainBottleneck = currentBottleneck || "Inconsistent growth and unclear positioning";
+
+  if (apiKey) {
     try {
-      const { creatorName, niche, followers, mainGoal, currentBottleneck } = req.body;
-
-      const name = creatorName || "Creator";
-      const primaryNiche = niche || "Tech, AI & Software";
-      const audienceScale = followers || "Early Stage — 0–5K";
-      const primaryGoal = mainGoal || "Gain Views, Followers & Likes";
-      const mainBottleneck = currentBottleneck || "Inconsistent growth and unclear positioning";
-
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (apiKey) {
-        try {
-          const ai = new GoogleGenAI({ apiKey });
-          const systemInstruction = `You are the AI Creator Strategist inside Elevate OS.
+      const ai = new GoogleGenAI({ apiKey });
+      const systemInstruction = `You are the AI Creator Strategist inside Elevate OS.
 
 Elevate OS helps creators turn views into a scalable brand, loyal community, and high-margin creator business.
 
@@ -82,42 +72,182 @@ Return ONLY a JSON object matching this exact schema:
   "elevateMove": "ONE high-impact, specific action step to execute in the next 7 days."
 }`;
 
-          const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: systemInstruction,
-            config: {
-              responseMimeType: "application/json",
-            },
-          });
-
-          const text = response.text || "{}";
-          const parsed = JSON.parse(text);
-
-          return res.json({
-            success: true,
-            isAI: true,
-            diagnosis: parsed
-          });
-        } catch (aiErr) {
-          console.error("Gemini API call failed, using fallback rule engine:", aiErr);
-        }
-      }
-
-      // Rule-based Fallback Generator if AI Key is absent or fails
-      const fallbackDiagnosis = generateRuleBasedDiagnosis({
-        creatorName: name,
-        primaryNiche,
-        audienceScale,
-        primaryGoal,
-        mainBottleneck
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: systemInstruction,
+        config: {
+          responseMimeType: "application/json",
+        },
       });
 
-      return res.json({
+      const text = response.text || "{}";
+      const parsed = JSON.parse(text);
+
+      return {
         success: true,
-        isAI: false,
-        diagnosis: fallbackDiagnosis
-      });
+        isAI: true,
+        diagnosis: parsed
+      };
+    } catch (aiErr) {
+      console.error("Gemini API call failed, using fallback rule engine:", aiErr);
+    }
+  }
 
+  // Rule-based Fallback Generator if AI Key is absent or fails
+  const fallbackDiagnosis = generateRuleBasedDiagnosis({
+    creatorName: name,
+    primaryNiche,
+    audienceScale,
+    primaryGoal,
+    mainBottleneck
+  });
+
+  return {
+    success: true,
+    isAI: false,
+    diagnosis: fallbackDiagnosis
+  };
+}
+
+export async function handleBookStrategySession(body: any, envWebAppUrl?: string) {
+  const { fullName, phoneNumber, instagramId, currentProblem, email } = body || {};
+
+  if (!fullName || !phoneNumber || !instagramId || !currentProblem) {
+    return { error: "Missing required fields", status: 400 };
+  }
+
+  const timestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+
+  const sheetPayload = {
+    name: fullName,
+    fullName: fullName,
+    Name: fullName,
+    email: email || "",
+    Email: email || "",
+    phone: phoneNumber,
+    phoneNumber: phoneNumber,
+    Phone: phoneNumber,
+    instagram: instagramId,
+    instagramId: instagramId,
+    Instagram: instagramId,
+    helpNeeded: currentProblem,
+    currentProblem: currentProblem,
+    bottleneck: currentProblem,
+    Problem: currentProblem,
+    timestamp: timestamp,
+    Timestamp: timestamp
+  };
+
+  strategySubmissions.push(sheetPayload);
+  console.log("Strategy Session Booking logged for Google Sheet:", sheetPayload);
+
+  const webAppUrl = envWebAppUrl || process.env.GOOGLE_SHEET_WEB_APP_URL || "https://script.google.com/macros/s/AKfycbyyUmXiHTOFEWaxfQ2k36I6zlailBr4sxpQy1Q70QlUkI47MPeOow0BRZTsd_57G8b5/exec";
+
+  if (webAppUrl) {
+    try {
+      await fetch(webAppUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(sheetPayload),
+        redirect: "follow"
+      });
+    } catch (sheetErr) {
+      console.error("Failed to forward to Google Sheet Web App (JSON):", sheetErr);
+    }
+
+    try {
+      const formParams = new URLSearchParams();
+      for (const [key, val] of Object.entries(sheetPayload)) {
+        formParams.append(key, String(val ?? ""));
+      }
+      await fetch(webAppUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formParams.toString(),
+        redirect: "follow"
+      });
+    } catch (formErr) {
+      // Ignore secondary attempt
+    }
+  }
+
+  return {
+    success: true,
+    message: "Successfully logged for strategy session",
+    submission: sheetPayload
+  };
+}
+
+export function getStrategySubmissions() {
+  return { submissions: strategySubmissions };
+}
+
+// Cloudflare Workers Fetch Handler
+export default {
+  async fetch(request: Request, env: any, ctx: any): Promise<Response> {
+    const url = new URL(request.url);
+
+    // API endpoint for AI Creator OS Growth Audit & Strategic Diagnosis
+    if (url.pathname === "/api/diagnose" && request.method === "POST") {
+      try {
+        const body = await request.json().catch(() => ({}));
+        const apiKey = env?.GEMINI_API_KEY || process.env?.GEMINI_API_KEY;
+        const result = await handleDiagnose(body, apiKey);
+        return Response.json(result);
+      } catch (err: any) {
+        return Response.json(
+          { error: "Failed to generate diagnosis", message: err?.message || "Internal server error" },
+          { status: 500 }
+        );
+      }
+    }
+
+    // API endpoint for Free Strategy Session Google Sheets integration
+    if (url.pathname === "/api/book-strategy-session" && request.method === "POST") {
+      try {
+        const body = await request.json().catch(() => ({}));
+        const sheetUrl = env?.GOOGLE_SHEET_WEB_APP_URL || process.env?.GOOGLE_SHEET_WEB_APP_URL;
+        const result = await handleBookStrategySession(body, sheetUrl);
+        if ("error" in result && result.status) {
+          return Response.json({ error: result.error }, { status: result.status });
+        }
+        return Response.json(result);
+      } catch (err: any) {
+        return Response.json({ error: err?.message || "Internal server error" }, { status: 500 });
+      }
+    }
+
+    // API endpoint to retrieve logged strategy submissions
+    if (url.pathname === "/api/strategy-submissions" && request.method === "GET") {
+      return Response.json(getStrategySubmissions());
+    }
+
+    // Serve static assets through Cloudflare Workers Assets
+    if (env && env.ASSETS && typeof env.ASSETS.fetch === "function") {
+      return await env.ASSETS.fetch(request);
+    }
+
+    return new Response("Not Found", { status: 404 });
+  }
+};
+
+// Node.js Express Server implementation for local development and Cloud Run containers
+async function startServer() {
+  const expressModule = await import("express");
+  const express = expressModule.default;
+  const pathModule = await import("path");
+  const path = pathModule.default;
+
+  const app = express();
+  const PORT = 3000;
+
+  app.use(express.json());
+
+  app.post("/api/diagnose", async (req, res) => {
+    try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      const result = await handleDiagnose(req.body, apiKey);
+      return res.json(result);
     } catch (error: any) {
       console.error("Diagnosis error:", error);
       return res.status(500).json({
@@ -127,81 +257,14 @@ Return ONLY a JSON object matching this exact schema:
     }
   });
 
-  // API endpoint for Free Strategy Session Google Sheets integration (Spreadsheet ID: 1MJCTxdYxttUAcNDRp6UqWIARN7RhQdJeJT3VohHBBk8)
-  const strategySubmissions: any[] = [];
-  const SPREADSHEET_ID = "1MJCTxdYxttUAcNDRp6UqWIARN7RhQdJeJT3VohHBBk8";
-
   app.post("/api/book-strategy-session", async (req, res) => {
     try {
-      const { fullName, phoneNumber, instagramId, currentProblem, email } = req.body;
-
-      if (!fullName || !phoneNumber || !instagramId || !currentProblem) {
-        return res.status(400).json({ error: "Missing required fields" });
+      const sheetUrl = process.env.GOOGLE_SHEET_WEB_APP_URL;
+      const result = await handleBookStrategySession(req.body, sheetUrl);
+      if ("error" in result && result.status) {
+        return res.status(result.status).json({ error: result.error });
       }
-
-      const timestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
-
-      const sheetPayload = {
-        name: fullName,
-        fullName: fullName,
-        Name: fullName,
-        email: email || "",
-        Email: email || "",
-        phone: phoneNumber,
-        phoneNumber: phoneNumber,
-        Phone: phoneNumber,
-        instagram: instagramId,
-        instagramId: instagramId,
-        Instagram: instagramId,
-        helpNeeded: currentProblem,
-        currentProblem: currentProblem,
-        bottleneck: currentProblem,
-        Problem: currentProblem,
-        timestamp: timestamp,
-        Timestamp: timestamp
-      };
-
-      strategySubmissions.push(sheetPayload);
-      console.log("Strategy Session Booking logged for Google Sheet:", sheetPayload);
-
-      // Forward to Google Apps Script Web App
-      const webAppUrl = process.env.GOOGLE_SHEET_WEB_APP_URL || "https://script.google.com/macros/s/AKfycbyyUmXiHTOFEWaxfQ2k36I6zlailBr4sxpQy1Q70QlUkI47MPeOow0BRZTsd_57G8b5/exec";
-      if (webAppUrl) {
-        // Send JSON as text/plain to avoid CORS / parser issues in Google Apps Script
-        try {
-          const sheetRes = await fetch(webAppUrl, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify(sheetPayload),
-            redirect: "follow"
-          });
-          console.log("Posted entry to Google Apps Script Web App, status:", sheetRes.status);
-        } catch (sheetErr) {
-          console.error("Failed to forward to Google Sheet Web App (JSON):", sheetErr);
-        }
-
-        // Also post as URL-encoded form data in case doPost reads e.parameter
-        try {
-          const formParams = new URLSearchParams();
-          for (const [key, val] of Object.entries(sheetPayload)) {
-            formParams.append(key, String(val ?? ""));
-          }
-          await fetch(webAppUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: formParams.toString(),
-            redirect: "follow"
-          });
-        } catch (formErr) {
-          // Ignore secondary attempt
-        }
-      }
-
-      return res.json({
-        success: true,
-        message: "Successfully logged for strategy session",
-        submission: sheetPayload
-      });
+      return res.json(result);
     } catch (err: any) {
       console.error("Booking error:", err);
       return res.status(500).json({ error: err?.message || "Internal server error" });
@@ -209,11 +272,11 @@ Return ONLY a JSON object matching this exact schema:
   });
 
   app.get("/api/strategy-submissions", (req, res) => {
-    res.json({ submissions: strategySubmissions });
+    res.json(getStrategySubmissions());
   });
 
-  // Vite middleware for development vs static serve for production
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -232,4 +295,13 @@ Return ONLY a JSON object matching this exact schema:
   });
 }
 
-startServer();
+// Start Node server if running directly in a Node.js CLI process
+if (typeof process !== "undefined" && Array.isArray(process.argv) && process.argv.length > 0) {
+  const isNode = typeof process.versions !== "undefined" && !!process.versions.node;
+  const isWorkerEnv = typeof globalThis !== "undefined" && "WebSocketPair" in globalThis && !isNode;
+  if (!isWorkerEnv) {
+    startServer().catch((err) => {
+      console.error("Failed to start Node server:", err);
+    });
+  }
+}

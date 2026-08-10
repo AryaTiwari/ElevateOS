@@ -1,22 +1,8 @@
 import React, { useState } from 'react';
 import { BookingFormData } from '../types';
 import { CONTACT_INFO } from '../data/elevateData';
-import { X, Send, Mail, CircleCheckBig, Calendar, Phone, User, CircleAlert } from 'lucide-react';
+import { X, Send, Mail, CheckCircle2, Calendar, Phone, Instagram, User, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-
-/* Instagram was removed from lucide-react in v1.0 (brand-logo icons were
-   dropped from the library entirely). Small inline replacement so this
-   doesn't depend on a brand-icon package for one glyph. */
-function InstagramIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-    </svg>
-  );
-}
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -25,7 +11,7 @@ interface BookingModalProps {
 }
 
 export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BookingFormData>({
     fullName: '',
     phoneNumber: '',
     instagramId: '',
@@ -39,7 +25,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const isValidIndianPhone = (phone: string) => {
-    const cleaned = phone.replace(/[\s-()]/g, '');
+    const cleaned = phone.replace(/[\s\-\(\)]/g, '');
     return /^(?:\+?91|0)?[6-9]\d{9}$/.test(cleaned);
   };
 
@@ -79,34 +65,34 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
       bottleneck: formData.currentProblem,
       Problem: formData.currentProblem,
       timestamp: timestamp,
-      Timestamp: timestamp,
+      Timestamp: timestamp
     };
 
-    // Best-effort background send, fully sealed off in its own async IIFE.
-    // Nothing inside this block — a rejected fetch, a thrown error, a
-    // blocked request, anything — can ever reach the code below it. It's
-    // wrapped, awaited nowhere, and its own try/catch swallows everything.
-    void (async () => {
-      try {
-        await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify(directPayload),
-        });
-      } catch (err) {
-        console.error('Google Apps Script submit error (non-blocking):', err);
-      }
-    })();
+    // Direct browser post to Google Apps Script as text/plain (no-cors)
+    try {
+      fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(directPayload)
+      }).catch((err) => console.error('Direct Google Apps Script fetch error:', err));
+    } catch (e) {
+      console.error('Direct fetch error:', e);
+    }
 
-    // The success screen below does not depend on the block above in any
-    // way — it runs unconditionally. No /api route exists on a static host
-    // like GitHub Pages, so there is nothing to await or parse here; the
-    // old block that called /api/book-strategy-session and parsed its
-    // response as JSON is gone for good.
-    const submittedSnapshot = { ...formData } as BookingFormData;
-    setTimeout(() => {
-      setLastSubmittedData(submittedSnapshot);
+    try {
+      const response = await fetch('/api/book-strategy-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit booking');
+      }
+
+      setLastSubmittedData({ ...formData });
       setFormData({
         fullName: '',
         phoneNumber: '',
@@ -114,33 +100,29 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
         currentProblem: '',
         email: '',
       });
-      setIsSubmitting(false);
       setSubmitted(true);
-    }, 600);
+    } catch (err: any) {
+      console.error("Booking error:", err);
+      setErrorMessage(err.message || "Failed to submit strategy session request. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
-          onClick={onClose}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 sm:p-8 relative shadow-2xl my-8 text-left"
-            onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-              aria-label="Close"
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -164,7 +146,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
                       animate={{ opacity: 1, y: 0 }}
                       className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 font-bold text-xs flex items-center gap-2 shadow-sm"
                     >
-                      <CircleAlert className="w-4 h-4 shrink-0 text-red-600" />
+                      <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
                       <span>{errorMessage}</span>
                     </motion.div>
                   )}
@@ -213,7 +195,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
                   {/* Instagram ID Input */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
-                      <InstagramIcon className="w-3.5 h-3.5 text-blue-600" /> Instagram ID / Handle *
+                      <Instagram className="w-3.5 h-3.5 text-blue-600" /> Instagram ID / Handle *
                     </label>
                     <input
                       type="text"
@@ -231,7 +213,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
                   {/* Current Problem Input */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
-                      <CircleAlert className="w-3.5 h-3.5 text-blue-600" /> What is your current main problem / bottleneck? *
+                      <AlertCircle className="w-3.5 h-3.5 text-blue-600" /> What is your current main problem / bottleneck? *
                     </label>
                     <textarea
                       rows={3}
@@ -279,7 +261,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
             ) : (
               <div className="text-center py-8 space-y-4">
                 <div className="w-16 h-16 bg-blue-50 border border-blue-200 rounded-full flex items-center justify-center mx-auto text-blue-600">
-                  <CircleCheckBig className="w-8 h-8" />
+                  <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <h3 className="text-2xl font-extrabold text-slate-900">Strategy Session Requested!</h3>
                 <p className="text-slate-600 text-sm max-w-sm mx-auto leading-relaxed font-medium">
@@ -308,7 +290,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
               </div>
             )}
           </motion.div>
-        </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );
