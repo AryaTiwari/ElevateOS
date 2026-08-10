@@ -1,12 +1,94 @@
 @import "tailwindcss";
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
   * {
     font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
+
+  body {
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+    background-color: #f8fafc;
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
-body {
-  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+/* 144Hz+ High-FPS Hardware Compositing & Rendering Optimizations */
+@layer utilities {
+  .gpu-layer {
+    will-change: transform, opacity;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  .gpu-transform {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .smooth-backdrop {
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    transform: translateZ(0);
+    will-change: backdrop-filter, transform;
+  }
+
+  .optimize-render {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
+  }
+}
+
+/* High-rate smooth keyframes with hardware accelerated transforms */
+@keyframes smoothShimmer {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(200%, 0, 0);
+  }
+}
+
+@keyframes smoothPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale3d(0.98, 0.98, 1);
+  }
+}
+
+@keyframes smoothFloat {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+.animate-smooth-shimmer {
+  animation: smoothShimmer 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+
+.animate-smooth-pulse {
+  animation: smoothPulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform, opacity;
+}
+
+.animate-smooth-float {
+  animation: smoothFloat 4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  will-change: transform;
 }
 

@@ -19,117 +19,93 @@ export const Hero: React.FC<HeroProps> = memo(({ onOpenBooking, onOpenFlagship, 
   return (
     <section className="relative pt-12 pb-16 md:pt-20 md:pb-24 overflow-hidden">
       {/* Atmospheric Background Glows */}
-      <motion.div
-        animate={{ scale: [1, 1.1, 1], opacity: [0.12, 0.18, 0.12] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-[-100px] left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"
+      <div
+        className="absolute top-[-100px] left-1/2 -translate-x-1/2 w-[550px] h-[550px] bg-blue-600/10 rounded-full blur-[60px] pointer-events-none animate-smooth-pulse gpu-layer"
+        style={{ animationDuration: '8s', willChange: 'transform, opacity' }}
       />
-      <div className="absolute bottom-[-100px] right-[-100px] w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute bottom-[-100px] right-[-100px] w-[350px] h-[350px] bg-blue-500/5 rounded-full blur-[50px] pointer-events-none gpu-layer"></div>
 
-      {/* FLOATING BACKGROUND EMOJIS & CREATOR BADGES (INSTAGRAM, YOUTUBE, LIKES, FOLLOWERS) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+      {/* FLOATING BACKGROUND CREATOR BADGES - GPU Accelerated CSS Keyframes */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 gpu-layer">
         {/* Floating Item 1: Top-Left Instagram & Followers */}
-        <motion.div
-          animate={{ y: [0, -18, 0], rotate: [-2, 3, -2] }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-12 left-4 md:left-12 lg:left-20 bg-white/90 backdrop-blur-md border border-pink-200 shadow-xl rounded-2xl p-2.5 px-3.5 hidden sm:flex items-center gap-2.5 select-none"
+        <div
+          style={{ animationDuration: '6s', willChange: 'transform' }}
+          className="absolute top-12 left-4 md:left-12 lg:left-20 bg-white/95 border border-pink-200/90 shadow-lg shadow-pink-500/5 rounded-2xl p-2.5 px-3.5 hidden sm:flex items-center gap-2.5 select-none animate-smooth-float gpu-layer"
         >
           <span className="text-xl">📸</span>
           <div className="text-left">
             <div className="text-[10px] font-black text-pink-600 uppercase tracking-wider">Instagram Reel</div>
             <div className="text-xs font-black text-slate-900 flex items-center gap-1">
               <span>👥 150K</span>
-              <span className="text-slate-400 font-normal">followers</span>
+              <span className="text-slate-500 font-normal">followers</span>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Floating Item 2: Top-Right YouTube & Likes */}
-        <motion.div
-          animate={{ y: [0, 20, 0], rotate: [2, -3, 2] }}
-          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-          className="absolute top-16 right-4 md:right-12 lg:right-20 bg-white/90 backdrop-blur-md border border-red-200 shadow-xl rounded-2xl p-2.5 px-3.5 hidden sm:flex items-center gap-2.5 select-none"
+        <div
+          style={{ animationDuration: '7s', animationDelay: '0.8s', willChange: 'transform' }}
+          className="absolute top-16 right-4 md:right-12 lg:right-20 bg-white/95 border border-red-200/90 shadow-lg shadow-red-500/5 rounded-2xl p-2.5 px-3.5 hidden sm:flex items-center gap-2.5 select-none animate-smooth-float gpu-layer"
         >
           <span className="text-xl">▶️</span>
           <div className="text-left">
             <div className="text-[10px] font-black text-red-600 uppercase tracking-wider">YouTube Channel</div>
             <div className="text-xs font-black text-slate-900 flex items-center gap-1">
               <span>❤️ 85.4K</span>
-              <span className="text-slate-400 font-normal">likes</span>
+              <span className="text-slate-500 font-normal">likes</span>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Floating Item 3: Middle-Left Likes & Engagement */}
-        <motion.div
-          animate={{ y: [0, -15, 0], x: [0, 8, 0] }}
-          transition={{ duration: 6.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-          className="absolute top-1/2 -translate-y-1/2 left-2 md:left-8 lg:left-16 bg-white/85 backdrop-blur-md border border-rose-200 shadow-lg rounded-2xl p-2 px-3 hidden lg:flex items-center gap-2 select-none"
+        <div
+          style={{ animationDuration: '6.5s', animationDelay: '1.2s', willChange: 'transform' }}
+          className="absolute top-1/2 -translate-y-1/2 left-2 md:left-8 lg:left-16 bg-white/95 border border-rose-200/90 shadow-md rounded-2xl p-2 px-3 hidden lg:flex items-center gap-2 select-none animate-smooth-float gpu-layer"
         >
           <span className="text-lg">💖</span>
           <span className="text-xs font-bold text-slate-800">👍 24.8K Likes</span>
           <span className="text-[10px] bg-rose-100 text-rose-700 font-black px-1.5 py-0.5 rounded-full">🔥 Viral</span>
-        </motion.div>
+        </div>
 
         {/* Floating Item 4: Middle-Right Followers & Subscribers */}
-        <motion.div
-          animate={{ y: [0, 18, 0], x: [0, -6, 0] }}
-          transition={{ duration: 7.5, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
-          className="absolute top-1/2 -translate-y-1/2 right-2 md:right-8 lg:right-16 bg-white/85 backdrop-blur-md border border-blue-200 shadow-lg rounded-2xl p-2 px-3 hidden lg:flex items-center gap-2 select-none"
+        <div
+          style={{ animationDuration: '7.5s', animationDelay: '1.8s', willChange: 'transform' }}
+          className="absolute top-1/2 -translate-y-1/2 right-2 md:right-8 lg:right-16 bg-white/95 border border-blue-200/90 shadow-md rounded-2xl p-2 px-3 hidden lg:flex items-center gap-2 select-none animate-smooth-float gpu-layer"
         >
           <span className="text-lg">👥</span>
           <span className="text-xs font-bold text-slate-800">🚀 +50K New Followers</span>
-        </motion.div>
+        </div>
 
-        {/* Scattered Ambient Floating Emojis (Instagram, YouTube, Likes, Followers) */}
-        <motion.div
-          animate={{ y: [0, -25, 0], opacity: [0.6, 0.9, 0.6] }}
-          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-1/3 left-[15%] text-2xl select-none hidden md:block"
+        {/* Scattered Ambient Floating Emojis */}
+        <div
+          style={{ animationDuration: '5s', willChange: 'transform' }}
+          className="absolute top-1/3 left-[15%] text-2xl select-none hidden md:block animate-smooth-float gpu-layer opacity-70"
         >
           ❤️
-        </motion.div>
+        </div>
 
-        <motion.div
-          animate={{ y: [0, 22, 0], opacity: [0.5, 0.85, 0.5] }}
-          transition={{ duration: 6.2, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
-          className="absolute top-1/4 right-[16%] text-2xl select-none hidden md:block"
+        <div
+          style={{ animationDuration: '6.2s', animationDelay: '0.8s', willChange: 'transform' }}
+          className="absolute top-1/4 right-[16%] text-2xl select-none hidden md:block animate-smooth-float gpu-layer opacity-70"
         >
           📹
-        </motion.div>
+        </div>
 
-        <motion.div
-          animate={{ y: [0, -20, 0], scale: [0.9, 1.1, 0.9] }}
-          transition={{ duration: 5.8, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
-          className="absolute bottom-20 left-[10%] text-2xl select-none hidden md:block"
+        <div
+          style={{ animationDuration: '5.8s', animationDelay: '1.2s', willChange: 'transform' }}
+          className="absolute bottom-20 left-[10%] text-2xl select-none hidden md:block animate-smooth-float gpu-layer opacity-60"
         >
           👍
-        </motion.div>
+        </div>
 
-        <motion.div
-          animate={{ y: [0, 15, 0], rotate: [-10, 10, -10] }}
-          transition={{ duration: 6.8, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
-          className="absolute bottom-24 right-[12%] text-2xl select-none hidden md:block"
+        <div
+          style={{ animationDuration: '6.8s', animationDelay: '0.4s', willChange: 'transform' }}
+          className="absolute bottom-24 right-[12%] text-2xl select-none hidden md:block animate-smooth-float gpu-layer opacity-60"
         >
           💬
-        </motion.div>
-
-        <motion.div
-          animate={{ y: [0, -12, 0] }}
-          transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut', delay: 1.8 }}
-          className="absolute top-[65%] left-[22%] text-xl select-none hidden lg:block"
-        >
-          📸
-        </motion.div>
-
-        <motion.div
-          animate={{ y: [0, 16, 0] }}
-          transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut', delay: 2.2 }}
-          className="absolute top-[70%] right-[24%] text-xl select-none hidden lg:block"
-        >
-          ▶️
-        </motion.div>
+        </div>
       </div>
+
 
       <div className="w-[min(1120px,92%)] mx-auto relative z-10">
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
@@ -220,11 +196,11 @@ export const Hero: React.FC<HeroProps> = memo(({ onOpenBooking, onOpenFlagship, 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
             className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full mt-16 text-left"
           >
             {/* Module 01 */}
-            <div className="bg-white/80 backdrop-blur-md border border-slate-200/90 hover:border-blue-400 p-5 rounded-2xl transition-all cursor-default group relative overflow-hidden shadow-lg shadow-slate-200/50 hover:shadow-xl">
+            <div className="bg-white border-2 border-slate-200/90 hover:border-blue-500/80 p-5 rounded-2xl transition-all cursor-default group relative overflow-hidden shadow-md hover:shadow-xl gpu-layer">
               <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-bl-full pointer-events-none" />
               <div className="flex items-center gap-3 mb-3">
                 <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-blue-100 text-blue-700 text-xs font-black shrink-0">01</span>
@@ -234,7 +210,7 @@ export const Hero: React.FC<HeroProps> = memo(({ onOpenBooking, onOpenFlagship, 
             </div>
 
             {/* Module 02 */}
-            <div className="bg-white/80 backdrop-blur-md border border-slate-200/90 hover:border-blue-400 p-5 rounded-2xl transition-all cursor-default group relative overflow-hidden shadow-lg shadow-slate-200/50 hover:shadow-xl">
+            <div className="bg-white border-2 border-slate-200/90 hover:border-blue-500/80 p-5 rounded-2xl transition-all cursor-default group relative overflow-hidden shadow-md hover:shadow-xl gpu-layer">
               <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-bl-full pointer-events-none" />
               <div className="flex items-center gap-3 mb-3">
                 <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-blue-100 text-blue-700 text-xs font-black shrink-0">02</span>
@@ -244,7 +220,7 @@ export const Hero: React.FC<HeroProps> = memo(({ onOpenBooking, onOpenFlagship, 
             </div>
 
             {/* Module 03 */}
-            <div className="bg-white/80 backdrop-blur-md border border-slate-200/90 hover:border-blue-400 p-5 rounded-2xl transition-all cursor-default group relative overflow-hidden shadow-lg shadow-slate-200/50 hover:shadow-xl">
+            <div className="bg-white border-2 border-slate-200/90 hover:border-blue-500/80 p-5 rounded-2xl transition-all cursor-default group relative overflow-hidden shadow-md hover:shadow-xl gpu-layer">
               <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-bl-full pointer-events-none" />
               <div className="flex items-center gap-3 mb-3">
                 <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-blue-100 text-blue-700 text-xs font-black shrink-0">03</span>

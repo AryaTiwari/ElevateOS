@@ -118,7 +118,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = memo(({ onOpenBooki
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-white/90 backdrop-blur-md border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50"
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-white border-2 border-slate-200 rounded-3xl p-6 sm:p-8 shadow-lg shadow-slate-200/40 gpu-layer"
         >
           {/* INPUT FORM */}
           <div className="lg:col-span-5 border-b lg:border-b-0 lg:border-r border-slate-200 pb-6 lg:pb-0 lg:pr-8">
@@ -303,7 +303,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = memo(({ onOpenBooki
 
                     <div className="space-y-4">
                       {result.steps.map((stepItem, idx) => (
-                        <div key={idx} className="p-4 sm:p-5 bg-slate-50/80 border border-slate-200 rounded-2xl space-y-3.5 hover:border-blue-300 transition-all shadow-sm relative overflow-hidden group">
+                        <div key={idx} className="p-4 sm:p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3.5 hover:border-blue-300 transition-all shadow-sm relative overflow-hidden group gpu-layer">
                           {/* Top indicator bar */}
                           <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
                             <span className="text-xs font-black text-blue-700 uppercase tracking-wider flex items-center gap-1.5">

@@ -43,16 +43,17 @@ export const Navbar: React.FC<NavbarProps> = memo(({ onOpenBooking, onOpenAudit 
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 transition-all duration-300">
+    <header className="sticky top-0 z-50 transition-all duration-300 gpu-layer">
       <div className={`w-[min(1120px,92%)] mx-auto`}>
         <motion.nav
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className={`h-[76px] border-b flex items-center justify-between px-4 md:px-6 transition-all duration-300 relative ${
+          style={{ willChange: 'transform, opacity' }}
+          className={`h-[76px] border-b flex items-center justify-between px-4 md:px-6 transition-all duration-300 relative gpu-layer ${
             isScrolled
-              ? 'bg-white/85 backdrop-blur-md rounded-b-xl border-slate-200/80 shadow-md shadow-slate-200/50'
-              : 'bg-white/60 backdrop-blur-sm border-slate-200/60'
+              ? 'bg-white/95 rounded-b-xl border-slate-200 shadow-md shadow-slate-200/50'
+              : 'bg-white/90 border-slate-200/80'
           }`}
         >
           {/* LEFT CORNER: EXPLORE OS DROPDOWN */}

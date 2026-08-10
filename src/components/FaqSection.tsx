@@ -67,7 +67,7 @@ export const FaqSection: React.FC<FaqSectionProps> = memo(({ onOpenBooking }) =>
   return (
     <section id="faq" className="py-[70px] md:py-[90px] relative border-t border-slate-200">
       {/* BACKGROUND GLOWS */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-blue-400/10 blur-[120px] pointer-events-none rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[250px] bg-blue-400/10 blur-[50px] pointer-events-none rounded-full gpu-layer" />
 
       <div className="w-[min(1120px,92%)] mx-auto relative z-10">
         {/* SECTION HEADER */}
@@ -135,10 +135,10 @@ export const FaqSection: React.FC<FaqSectionProps> = memo(({ onOpenBooking }) =>
             return (
               <div
                 key={faq.id}
-                className={`border rounded-2xl transition-all overflow-hidden ${
+                className={`border rounded-2xl transition-all overflow-hidden gpu-layer ${
                   isOpen
-                    ? 'bg-white border-blue-300 shadow-lg shadow-blue-500/5'
-                    : 'bg-white/80 backdrop-blur-md border-slate-200 hover:border-slate-300'
+                    ? 'bg-white border-blue-400 shadow-md shadow-blue-500/5'
+                    : 'bg-white border-slate-200 hover:border-slate-300'
                 }`}
               >
                 <button

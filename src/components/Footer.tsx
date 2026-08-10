@@ -8,7 +8,7 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = memo(({ onOpenLegal }) => {
   return (
-    <footer className="border-t border-slate-200 py-[38px] text-slate-600 text-[13px] bg-white/80 backdrop-blur-md">
+    <footer className="border-t border-slate-200 py-[38px] text-slate-600 text-[13px] bg-white">
       <div className="w-[min(1120px,92%)] mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5 flex-wrap">
           <div>

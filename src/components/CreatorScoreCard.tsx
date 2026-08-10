@@ -709,22 +709,18 @@ export const CreatorScoreCard: React.FC<CreatorScoreCardProps> = memo(({ onOpenB
   return (
     <section id="creator-score" className="py-12 md:py-20 relative border-t border-slate-200">
       {/* Dynamic Background Glows */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[350px] bg-gradient-to-r from-red-200/30 via-orange-200/30 to-yellow-200/30 blur-[130px] pointer-events-none rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[300px] bg-gradient-to-r from-red-200/20 via-orange-200/20 to-yellow-200/20 blur-[50px] pointer-events-none rounded-full gpu-layer" />
       
       <div className="w-[min(1120px,92%)] mx-auto relative z-10">
-        <div className="bg-white/90 backdrop-blur-md border border-slate-200/90 hover:border-orange-400/40 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl shadow-slate-200/60 relative overflow-hidden transition-all duration-300">
+        <div className="bg-white border-2 border-slate-200/90 hover:border-orange-400/40 rounded-3xl p-6 sm:p-8 md:p-10 shadow-xl relative overflow-hidden transition-all duration-300 gpu-layer">
           {/* Background Highlight */}
-          <div className="absolute -top-32 -right-32 w-96 h-96 bg-gradient-to-br from-red-100/30 via-orange-100/30 to-yellow-100/30 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute -top-32 -right-32 w-80 h-80 bg-gradient-to-br from-red-100/20 via-orange-100/20 to-yellow-100/20 rounded-full blur-[40px] pointer-events-none gpu-layer" />
 
-          {/* Floating Creator Emojis (Interactive & Content-Creator Friendly) */}
-          <div className="absolute top-4 left-10 opacity-20 text-3xl select-none animate-bounce pointer-events-none hidden sm:block" style={{ animationDuration: '3s' }}>📸</div>
-          <div className="absolute top-24 right-12 opacity-20 text-3xl select-none animate-bounce pointer-events-none hidden sm:block" style={{ animationDuration: '4s', animationDelay: '1s' }}>🎥</div>
-          <div className="absolute bottom-12 left-14 opacity-20 text-3xl select-none animate-bounce pointer-events-none hidden sm:block" style={{ animationDuration: '3.5s', animationDelay: '0.5s' }}>❤️</div>
-          <div className="absolute bottom-24 right-16 opacity-20 text-3xl select-none animate-bounce pointer-events-none hidden sm:block" style={{ animationDuration: '4.5s', animationDelay: '1.5s' }}>👥</div>
-          <div className="absolute top-1/2 left-2 opacity-15 text-2xl select-none animate-bounce pointer-events-none" style={{ animationDuration: '5s' }}>🔥</div>
-          <div className="absolute top-1/3 right-2 opacity-15 text-2xl select-none animate-bounce pointer-events-none" style={{ animationDuration: '4.2s', animationDelay: '2s' }}>📈</div>
-          <div className="absolute bottom-4 right-1/3 opacity-15 text-2xl select-none animate-bounce pointer-events-none hidden sm:block" style={{ animationDuration: '3.8s', animationDelay: '0.8s' }}>💬</div>
-          <div className="absolute top-2 left-1/3 opacity-15 text-2xl select-none animate-bounce pointer-events-none hidden sm:block" style={{ animationDuration: '4.7s', animationDelay: '1.2s' }}>👍</div>
+          {/* Static Ambient Emojis */}
+          <div className="absolute top-4 left-10 opacity-15 text-3xl select-none pointer-events-none hidden sm:block">📸</div>
+          <div className="absolute top-24 right-12 opacity-15 text-3xl select-none pointer-events-none hidden sm:block">🎥</div>
+          <div className="absolute bottom-12 left-14 opacity-15 text-3xl select-none pointer-events-none hidden sm:block">❤️</div>
+          <div className="absolute bottom-24 right-16 opacity-15 text-3xl select-none pointer-events-none hidden sm:block">👥</div>
 
           {/* SECTION HEADER */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 pb-6 border-b border-slate-200 relative z-10">
@@ -1127,7 +1123,7 @@ export const CreatorScoreCard: React.FC<CreatorScoreCardProps> = memo(({ onOpenB
                       </div>
 
                       {/* ACTION CARD */}
-                      <div className="bg-white/10 backdrop-blur-md border border-white/15 p-4 sm:p-5 rounded-2xl text-center shrink-0 w-full lg:w-auto min-w-[260px] space-y-3 shadow-lg">
+                      <div className="bg-slate-900/90 border border-white/15 p-4 sm:p-5 rounded-2xl text-center shrink-0 w-full lg:w-auto min-w-[260px] space-y-3 shadow-lg gpu-layer">
                         <div className="text-center">
                           <span className="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest block">POTENTIAL SCORE GAP</span>
                           <div className="text-2xl font-black text-amber-400 flex items-center justify-center gap-1.5 mt-0.5">

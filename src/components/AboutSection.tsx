@@ -7,9 +7,9 @@ interface AboutSectionProps {
 
 export const AboutSection: React.FC<AboutSectionProps> = memo(({ onOpenBooking }) => {
   return (
-    <section id="about" className="py-16 md:py-24 relative overflow-hidden bg-white/80 backdrop-blur-md border-t border-b border-slate-200 scroll-mt-24">
+    <section id="about" className="py-16 md:py-24 relative overflow-hidden bg-white border-t border-b border-slate-200 scroll-mt-24">
       {/* Dynamic Background Glows */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-r from-pink-500/10 via-orange-500/10 to-amber-500/10 blur-[150px] pointer-events-none rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-r from-pink-500/10 via-orange-500/10 to-amber-500/10 blur-[50px] pointer-events-none rounded-full gpu-layer" />
       
       <div className="w-[min(1120px,92%)] mx-auto relative z-10 space-y-12">
         
@@ -84,14 +84,12 @@ export const AboutSection: React.FC<AboutSectionProps> = memo(({ onOpenBooking }
         </div>
 
         {/* 2. INSTAGRAM COMMUNITY SUB-SECTION */}
-        <div className="bg-gradient-to-br from-white via-pink-50/20 to-purple-50/20 border border-slate-200 hover:border-pink-300 rounded-3xl p-8 sm:p-12 shadow-xl shadow-slate-200/50 relative overflow-hidden transition-all duration-300 text-center">
-          {/* Floating Emojis (Instagram, YouTube, Likes, Followers) */}
-          <div className="absolute top-6 left-10 text-3xl select-none animate-bounce pointer-events-none hidden sm:block" style={{ animationDuration: '3s' }}>📸</div>
-          <div className="absolute top-8 right-12 text-3xl select-none animate-bounce pointer-events-none hidden sm:block" style={{ animationDuration: '4.2s', animationDelay: '0.5s' }}>▶️</div>
-          <div className="absolute bottom-6 right-10 text-3xl select-none animate-bounce pointer-events-none hidden sm:block" style={{ animationDuration: '4s', animationDelay: '1s' }}>🔥</div>
-          <div className="absolute bottom-8 left-12 text-3xl select-none animate-bounce pointer-events-none hidden sm:block" style={{ animationDuration: '3.8s', animationDelay: '1.5s' }}>❤️</div>
-          <div className="absolute top-1/2 right-6 text-2xl select-none animate-bounce pointer-events-none hidden lg:block" style={{ animationDuration: '3.5s' }}>👥</div>
-          <div className="absolute top-1/2 left-6 text-2xl select-none animate-bounce pointer-events-none hidden lg:block" style={{ animationDuration: '3.2s' }}>👍</div>
+        <div className="bg-gradient-to-br from-white via-pink-50/20 to-purple-50/20 border border-slate-200 hover:border-pink-300 rounded-3xl p-8 sm:p-12 shadow-xl shadow-slate-200/50 relative overflow-hidden transition-all duration-300 text-center gpu-layer">
+          {/* Static Ambient Emojis */}
+          <div className="absolute top-6 left-10 text-3xl opacity-20 select-none pointer-events-none hidden sm:block">📸</div>
+          <div className="absolute top-8 right-12 text-3xl opacity-20 select-none pointer-events-none hidden sm:block">▶️</div>
+          <div className="absolute bottom-6 right-10 text-3xl opacity-20 select-none pointer-events-none hidden sm:block">🔥</div>
+          <div className="absolute bottom-8 left-12 text-3xl opacity-20 select-none pointer-events-none hidden sm:block">❤️</div>
 
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100 border border-pink-200 text-pink-700 text-xs font-black uppercase tracking-widest mb-4">
             <Instagram className="w-4 h-4 animate-pulse" />
