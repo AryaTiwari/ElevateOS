@@ -178,6 +178,25 @@ export async function handleBookStrategySession(body: any, envWebAppUrl?: string
   };
 }
 
+const SITEMAP_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://elevateos.in/</loc>
+    <lastmod>2026-08-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>`;
+
+const ROBOTS_TXT = `User-agent: *
+Allow: /
+
+# Disallow internal API endpoints
+Disallow: /api/
+
+Sitemap: https://elevateos.in/sitemap.xml
+`;
+
 export function getStrategySubmissions() {
   return { submissions: strategySubmissions };
 }
@@ -186,6 +205,26 @@ export function getStrategySubmissions() {
 export default {
   async fetch(request: Request, env: any, ctx: any): Promise<Response> {
     const url = new URL(request.url);
+
+    // Serve valid XML sitemap directly to avoid SPA rewrite
+    if (url.pathname === "/sitemap.xml") {
+      return new Response(SITEMAP_XML, {
+        headers: {
+          "Content-Type": "application/xml; charset=utf-8",
+          "Cache-Control": "public, max-age=86400, s-maxage=86400",
+        },
+      });
+    }
+
+    // Serve robots.txt
+    if (url.pathname === "/robots.txt") {
+      return new Response(ROBOTS_TXT, {
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "public, max-age=86400, s-maxage=86400",
+        },
+      });
+    }
 
     // API endpoint for AI Creator OS Growth Audit & Strategic Diagnosis
     if (url.pathname === "/api/diagnose" && request.method === "POST") {
@@ -273,6 +312,16 @@ async function startServer() {
 
   app.get("/api/strategy-submissions", (req, res) => {
     res.json(getStrategySubmissions());
+  });
+
+  app.get("/sitemap.xml", (req, res) => {
+    res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    res.send(SITEMAP_XML);
+  });
+
+  app.get("/robots.txt", (req, res) => {
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.send(ROBOTS_TXT);
   });
 
   if (process.env.NODE_ENV !== "production") {
