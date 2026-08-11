@@ -96,17 +96,17 @@ export default function App() {
             onOpenAudit={scrollToAudit}
           />
 
-          {/* CREATOR SCORE CARD SECTION */}
+          {/* ELEVATE AI CONTENT ANALYZER SECTION */}
           <section id="creator-score-section" className="py-12 md:py-20 w-[min(1120px,92%)] mx-auto relative z-10 scroll-mt-24">
             <div className="text-center max-w-2xl mx-auto mb-10">
               <span className="inline-flex items-center gap-1.5 text-[11px] font-black text-blue-700 tracking-widest uppercase bg-blue-100/80 border border-blue-200 px-3.5 py-1.5 rounded-full shadow-sm">
-                <Sparkles className="w-3.5 h-3.5 text-blue-600" /> DIAGNOSTIC SYSTEM
+                <Sparkles className="w-3.5 h-3.5 text-blue-600" /> AI REELS STRATEGIST
               </span>
               <h2 className="text-3xl md:text-5xl font-black text-slate-900 mt-4 tracking-tight leading-none">
-                Calculate Your <span className="text-blue-600">Creator Score</span> 📊✨
+                Elevate AI — <span className="text-blue-600">Content Analyzer</span> 🧠⚡
               </h2>
               <p className="text-xs md:text-sm text-slate-600 mt-3 font-medium max-w-lg mx-auto leading-relaxed">
-                Input your current audience metrics and audit your brand readiness checkpoints to identify bottlenecks in your growth flywheel.
+                Don't guess why your Reel isn't working. Paste your script or video concept and get instant, AI-powered retention, hook, and virality feedback.
               </p>
             </div>
             <CreatorScoreCard

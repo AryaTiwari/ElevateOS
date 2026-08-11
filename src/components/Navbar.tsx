@@ -94,11 +94,11 @@ export const Navbar: React.FC<NavbarProps> = memo(({ onOpenBooking, onOpenAudit 
                     className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-blue-50 border border-transparent hover:border-blue-100 transition-all group text-left"
                   >
                     <div className="w-8 h-8 rounded-lg bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-600 shrink-0 transition-all font-bold text-sm">
-                      📊
+                      🧠
                     </div>
                     <div>
-                      <span className="font-bold text-xs text-slate-800 group-hover:text-blue-600 transition-colors block">Creator Score</span>
-                      <span className="text-[10px] text-slate-500 mt-0.5 block leading-tight">Audit brand readiness & growth bottlenecks.</span>
+                      <span className="font-bold text-xs text-slate-800 group-hover:text-blue-600 transition-colors block">Elevate AI Content Analyzer</span>
+                      <span className="text-[10px] text-slate-500 mt-0.5 block leading-tight">AI Reels hook, retention & virality analysis.</span>
                     </div>
                   </a>
 
@@ -250,7 +250,7 @@ export const Navbar: React.FC<NavbarProps> = memo(({ onOpenBooking, onOpenAudit 
                 onClick={() => setMobileMenuOpen(false)}
                 className="text-slate-800 hover:text-blue-600 font-bold py-1 flex items-center gap-2"
               >
-                <span>📊</span> Creator Score
+                <span>🧠</span> Elevate AI Content Analyzer
               </a>
               <a
                 href="#revenue-calculator"

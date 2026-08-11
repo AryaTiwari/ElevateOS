@@ -1,7 +1,120 @@
 import { GoogleGenAI } from "@google/genai";
 import { generateRuleBasedDiagnosis } from "./src/utils/creatorStrategist.ts";
+import { generateRuleBasedAnalysis } from "./src/utils/contentAnalyzer.ts";
 
 const strategySubmissions: any[] = [];
+
+export async function handleAnalyzeContent(body: any, apiKey?: string) {
+  const { script, concept, caption, hook, cta, niche, targetAudience, creatorGoal } = body || {};
+
+  const fullContent = [hook, script, concept, caption, cta].filter(Boolean).join("\n---\n");
+
+  if (!fullContent || fullContent.trim().length === 0) {
+    return {
+      success: false,
+      error: "Content is required for analysis"
+    };
+  }
+
+  if (apiKey) {
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const prompt = `You are ELEVATE AI, an expert Instagram Reels content strategist for creators.
+
+Analyze the creator's submitted Reel script/content idea and provide a dynamic, highly personalized report.
+
+CREATOR INPUT DETAILS:
+- Script / Main Content: ${script || 'N/A'}
+- Concept: ${concept || 'N/A'}
+- Hook: ${hook || 'N/A'}
+- Caption: ${caption || 'N/A'}
+- CTA: ${cta || 'N/A'}
+- Niche: ${niche || 'General Creator'}
+- Target Audience: ${targetAudience || 'General Instagram Viewers'}
+- Primary Creator Goal: ${creatorGoal || 'Grow Followers & Reach'}
+
+ANALYSIS CRITERIA & RULES:
+1. Base the analysis on: Hook strength, 1-3s retention potential, value density, shareability, saveability, emotional impact, originality, clarity, CTA quality, and trend alignment/fit.
+2. Ratings must be EVIDENCE-BASED and change based on the actual CONTENT submitted. Do NOT give static or generic numbers.
+3. Calculate an ELEVATE CONTENT SCORE (overallScore) out of 100 as a reasoned synthesis of the 10 dimensions.
+4. Tone: Creator-friendly, modern, encouraging, never exam-like or harsh. Say "Here's where you're losing potential" instead of "Your content failed".
+5. Phrase insights like: "Based on current publicly observable Instagram/Reels behavior, creator best practices, and the content provided..."
+6. Never claim private access to Instagram's proprietary internal algorithm or guarantee exact views/virality.
+7. Provide 3-5 specific strengths and 3-5 specific weaknesses.
+8. Provide "biggestChange": exactly ONE high-impact recommendation (e.g. "Cut the first two sentences and start with...").
+9. Provide "hookSuggestions": 3 alternative hooks using 3 psychological angles (Curiosity, Contrarian, Emotional/Storytelling).
+10. Provide "retentionFix": practical suggestions for opening, pacing, information order, open loops, payoff, pattern interrupts.
+11. Provide "improvedVersion": a rewritten version of the creator's script that fixes pacing, hook, retention, and CTA while preserving their core idea and personality.
+
+Return ONLY a valid JSON object following this exact structure:
+{
+  "overallScore": 84,
+  "summary": "Short personalized 1-2 sentence summary of the script.",
+  "scores": {
+    "hook": { "score": 8.2, "explanation": "Short explanation", "indicator": "🔥 Strong" },
+    "retention": { "score": 7.5, "explanation": "Short explanation", "indicator": "⚡ Moderate" },
+    "value": { "score": 9.0, "explanation": "Short explanation", "indicator": "🔥 Strong" },
+    "shareability": { "score": 8.0, "explanation": "Short explanation", "indicator": "🔥 Strong" },
+    "saveability": { "score": 8.8, "explanation": "Short explanation", "indicator": "🔥 Strong" },
+    "emotionalImpact": { "score": 7.2, "explanation": "Short explanation", "indicator": "⚡ Moderate" },
+    "originality": { "score": 8.1, "explanation": "Short explanation", "indicator": "🔥 Strong" },
+    "clarity": { "score": 8.9, "explanation": "Short explanation", "indicator": "🔥 Strong" },
+    "cta": { "score": 6.8, "explanation": "Short explanation", "indicator": "⚠️ Needs Work" },
+    "trendAlignment": { "score": 8.5, "explanation": "Short explanation", "indicator": "🔥 Strong" }
+  },
+  "strengths": ["🔥 Strength 1", "🔥 Strength 2", "🔥 Strength 3"],
+  "weaknesses": ["⚠️ Weakness 1", "⚠️ Weakness 2", "⚠️ Weakness 3"],
+  "verdict": "Concise strategic explanation of the score.",
+  "biggestChange": "ONE high-impact change recommendation.",
+  "hookSuggestions": [
+    { "angle": "Curiosity", "hook": "Alternative hook 1" },
+    { "angle": "Contrarian", "hook": "Alternative hook 2" },
+    { "angle": "Emotional/Storytelling", "hook": "Alternative hook 3" }
+  ],
+  "retentionFix": "Practical retention fix suggestions.",
+  "trendAnalysis": { "score": 8.5, "explanation": "Trend fit explanation" },
+  "improvedVersion": "Fully improved rewritten script preserving core idea and creator voice."
+}`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.6-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+        },
+      });
+
+      const text = response.text || "{}";
+      const parsed = JSON.parse(text);
+
+      return {
+        success: true,
+        isAI: true,
+        report: parsed
+      };
+    } catch (aiErr) {
+      console.error("Gemini API call for content analysis failed, using rule engine:", aiErr);
+    }
+  }
+
+  // Fallback if AI Key is missing or API fails
+  const fallbackReport = generateRuleBasedAnalysis({
+    script: script || '',
+    concept,
+    caption,
+    hook,
+    cta,
+    niche,
+    targetAudience,
+    creatorGoal
+  });
+
+  return {
+    success: true,
+    isAI: false,
+    report: fallbackReport
+  };
+}
 
 export async function handleDiagnose(body: any, apiKey?: string) {
   const { creatorName, niche, followers, mainGoal, currentBottleneck } = body || {};
@@ -226,6 +339,21 @@ export default {
       });
     }
 
+    // API endpoint for ELEVATE AI Content Analyzer
+    if (url.pathname === "/api/analyze-content" && request.method === "POST") {
+      try {
+        const body = await request.json().catch(() => ({}));
+        const apiKey = env?.GEMINI_API_KEY || process.env?.GEMINI_API_KEY;
+        const result = await handleAnalyzeContent(body, apiKey);
+        return Response.json(result);
+      } catch (err: any) {
+        return Response.json(
+          { error: "Elevate AI couldn't analyze this content right now. Please try again.", message: err?.message },
+          { status: 500 }
+        );
+      }
+    }
+
     // API endpoint for AI Creator OS Growth Audit & Strategic Diagnosis
     if (url.pathname === "/api/diagnose" && request.method === "POST") {
       try {
@@ -281,6 +409,20 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+
+  app.post("/api/analyze-content", async (req, res) => {
+    try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      const result = await handleAnalyzeContent(req.body, apiKey);
+      return res.json(result);
+    } catch (error: any) {
+      console.error("Content analysis error:", error);
+      return res.status(500).json({
+        error: "Elevate AI couldn't analyze this content right now. Please try again.",
+        message: error?.message || "Internal server error"
+      });
+    }
+  });
 
   app.post("/api/diagnose", async (req, res) => {
     try {
