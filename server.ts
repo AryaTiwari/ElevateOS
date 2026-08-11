@@ -1,8 +1,154 @@
 import { GoogleGenAI } from "@google/genai";
 import { generateRuleBasedDiagnosis } from "./src/utils/creatorStrategist.ts";
 import { generateRuleBasedAnalysis } from "./src/utils/contentAnalyzer.ts";
+import { generateRuleBased7DayRoadmap } from "./src/utils/roadmapGenerator.ts";
 
 const strategySubmissions: any[] = [];
+
+// Helper to clean markdown code blocks and parse JSON safely
+function parseCleanJSON(rawText: string): any {
+  if (!rawText) return null;
+  let cleaned = rawText.trim();
+  if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
+  }
+  try {
+    return JSON.parse(cleaned);
+  } catch (e) {
+    const startIdx = cleaned.indexOf("{");
+    const endIdx = cleaned.lastIndexOf("}");
+    if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+      const jsonSub = cleaned.substring(startIdx, endIdx + 1);
+      return JSON.parse(jsonSub);
+    }
+    throw e;
+  }
+}
+
+export async function handleGenerate7DayRoadmap(body: any, apiKey?: string) {
+  const { creatorName, niche, audienceStage, mainGoal, currentBottleneck } = body || {};
+
+  const name = (creatorName || "Creator").trim();
+  const primaryNiche = niche || "Business";
+  const stage = audienceStage || "Growing";
+  const goal = mainGoal || "Increase Views";
+  const problem = (currentBottleneck || "Low reach").trim();
+
+  if (apiKey) {
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const prompt = `You are ELEVATE AI, an expert Instagram Reels creator strategist for Elevate OS.
+
+Your job is to build a SURFACE-LEVEL, high-level 7-Day Creator Roadmap to give the creator clear initial direction based on their input.
+
+INPUT DETAILS:
+- Creator Name: ${name}
+- Main Niche: ${primaryNiche}
+- Audience Stage: ${stage}
+- Primary Goal: ${goal}
+- Biggest Current Bottleneck/Problem: ${problem}
+
+RULES FOR GENERATION:
+1. Provide a SURFACE-LEVEL roadmap only. Focus on high-level direction, key priorities, and simple actions.
+2. Do NOT provide full scripts, 20 content ideas, detailed posting calendars, deep personas, or step-by-step execution guides.
+3. Tone: Professional, creator-focused, encouraging, clear.
+4. Phrasing rule: Use phrases like "Based on current creator best practices and publicly observable Reels patterns..."
+5. Do NOT claim access to Instagram's private or internal algorithm.
+6. Do NOT promise virality, exact follower counts, or income.
+7. Customize the 7 days based on the creator's niche (${primaryNiche}), stage (${stage}), goal (${goal}), and problem (${problem}).
+
+Return ONLY a JSON object matching this exact schema:
+{
+  "creatorName": "${name}",
+  "niche": "${primaryNiche}",
+  "audienceStage": "${stage}",
+  "mainGoal": "${goal}",
+  "currentBottleneck": "${problem}",
+  "intro": "2-3 short, personalized sentences introducing the strategic direction for their week.",
+  "days": [
+    {
+      "day": 1,
+      "focus": "Short focus title",
+      "action": "One clear, practical action.",
+      "shortExplanation": "Short 1-sentence reason or principle."
+    },
+    {
+      "day": 2,
+      "focus": "Short focus title",
+      "action": "One clear, practical action.",
+      "shortExplanation": "Short 1-sentence reason or principle."
+    },
+    {
+      "day": 3,
+      "focus": "Short focus title",
+      "action": "One clear, practical action.",
+      "shortExplanation": "Short 1-sentence reason or principle."
+    },
+    {
+      "day": 4,
+      "focus": "Short focus title",
+      "action": "One clear, practical action.",
+      "shortExplanation": "Short 1-sentence reason or principle."
+    },
+    {
+      "day": 5,
+      "focus": "Short focus title",
+      "action": "One clear, practical action.",
+      "shortExplanation": "Short 1-sentence reason or principle."
+    },
+    {
+      "day": 6,
+      "focus": "Short focus title",
+      "action": "One clear, practical action.",
+      "shortExplanation": "Short 1-sentence reason or principle."
+    },
+    {
+      "day": 7,
+      "focus": "Short focus title",
+      "action": "One clear, practical action.",
+      "shortExplanation": "Short 1-sentence reason or principle."
+    }
+  ]
+}`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+        },
+      });
+
+      const text = response.text || "{}";
+      const parsed = parseCleanJSON(text);
+
+      if (parsed && Array.isArray(parsed.days) && parsed.days.length === 7) {
+        return {
+          success: true,
+          isAI: true,
+          roadmap: parsed
+        };
+      }
+    } catch (aiErr) {
+      console.error("Gemini API call failed for 7-day roadmap, using fallback rule engine:", aiErr);
+    }
+  }
+
+  // Fallback if AI Key is missing or API fails
+  const fallbackRoadmap = generateRuleBased7DayRoadmap({
+    creatorName: name,
+    niche: primaryNiche,
+    audienceStage: stage,
+    mainGoal: goal,
+    currentBottleneck: problem
+  });
+
+  return {
+    success: true,
+    isAI: false,
+    roadmap: fallbackRoadmap
+  };
+}
 
 export async function handleAnalyzeContent(body: any, apiKey?: string) {
   const { script, concept, caption, hook, cta, niche, targetAudience, creatorGoal } = body || {};
@@ -12,16 +158,32 @@ export async function handleAnalyzeContent(body: any, apiKey?: string) {
   if (!fullContent || fullContent.trim().length === 0) {
     return {
       success: false,
-      error: "Content is required for analysis"
+      error: "Please enter a script, hook, or content concept to analyze."
     };
   }
 
   if (apiKey) {
     try {
       const ai = new GoogleGenAI({ apiKey });
-      const prompt = `You are ELEVATE AI, an expert Instagram Reels content strategist for creators.
+      const prompt = `You are ELEVATE AI, an elite Instagram Reels content strategist, comedy editor, and viral short-form video consultant.
 
-Analyze the creator's submitted Reel script/content idea and provide a dynamic, highly personalized report.
+==================================================
+NEW AI PHILOSOPHY (CRITICAL MANDATE)
+==================================================
+First understand the creator. Then optimize the content.
+NEVER apply a generic corporate formula to everything.
+
+You MUST NEVER convert a creator's unique personality, jokes, slang, sarcasm, Gen-Z tone, or storytelling style into generic "ChatGPT corporate advice" or bland educational language!
+
+Example 1 (Comedy/Meme):
+Original: "Bro really thought posting 7 reels a day would make him famous 💀"
+WRONG Rewrite: "Consistency is the key to achieving social media success. Here are seven strategies..." (DESTROYED CREATOR VOICE)
+RIGHT Rewrite: "Bro posted 7 reels a day for a week and was genuinely shocked when Instagram didn't mail him a verified checkmark 💀" (PRESERVED HUMOR & TONE)
+
+Example 2 (Emotional Storytelling):
+Original: "I spent 2 years trying to grow on Instagram before realizing nobody actually cared about my content."
+WRONG Rewrite: "To build an audience on Instagram, you need to conduct market research and align with audience needs." (DESTROYED EMOTIONAL IMPACT)
+RIGHT Rewrite: "I spent two years posting on Instagram before realizing something brutal: Nobody actually cared about my content. And honestly... I can't even blame them." (PRESERVED VULNERABILITY)
 
 CREATOR INPUT DETAILS:
 - Script / Main Content: ${script || 'N/A'}
@@ -33,51 +195,82 @@ CREATOR INPUT DETAILS:
 - Target Audience: ${targetAudience || 'General Instagram Viewers'}
 - Primary Creator Goal: ${creatorGoal || 'Grow Followers & Reach'}
 
-ANALYSIS CRITERIA & RULES:
-1. Base the analysis on: Hook strength, 1-3s retention potential, value density, shareability, saveability, emotional impact, originality, clarity, CTA quality, and trend alignment/fit.
-2. Ratings must be EVIDENCE-BASED and change based on the actual CONTENT submitted. Do NOT give static or generic numbers.
-3. Calculate an ELEVATE CONTENT SCORE (overallScore) out of 100 as a reasoned synthesis of the 10 dimensions.
-4. Tone: Creator-friendly, modern, encouraging, never exam-like or harsh. Say "Here's where you're losing potential" instead of "Your content failed".
-5. Phrase insights like: "Based on current publicly observable Instagram/Reels behavior, creator best practices, and the content provided..."
-6. Never claim private access to Instagram's proprietary internal algorithm or guarantee exact views/virality.
-7. Provide 3-5 specific strengths and 3-5 specific weaknesses.
-8. Provide "biggestChange": exactly ONE high-impact recommendation (e.g. "Cut the first two sentences and start with...").
-9. Provide "hookSuggestions": 3 alternative hooks using 3 psychological angles (Curiosity, Contrarian, Emotional/Storytelling).
-10. Provide "retentionFix": practical suggestions for opening, pacing, information order, open loops, payoff, pattern interrupts.
-11. Provide "improvedVersion": a rewritten version of the creator's script that fixes pacing, hook, retention, and CTA while preserving their core idea and personality.
+==================================================
+STEP 1 — INTERNAL CONTENT CLASSIFICATION
+==================================================
+Before scoring or rewriting, internally determine:
+1. CONTENT TYPE: Educational, Storytelling, Humor, Meme, Sarcasm, Relatable, Motivational, Emotional, Controversial, Opinion, Personal experience, Promotional, Tutorial, Commentary, Entertainment, or Hybrid.
+2. TONE: Funny, Serious, Dark humor, Playful, Sarcastic, Emotional, Inspirational, Aggressive, Calm, Conversational, Gen-Z, Professional, Casual.
+3. EMOTIONAL INTENT: Laugh, Curiosity, Surprise, Inspiration, Anger, Empathy, Nostalgia, Relatability, Shock, Motivation, FOMO, Validation.
+4. AUDIENCE REACTION: Predict the intended reaction (e.g., "LMAO that's literally me", "Wait... I've been doing this wrong", "That's actually useful").
 
-Return ONLY a valid JSON object following this exact structure:
+==================================================
+HUMOR & EMOTIONAL UNDERSTANDING
+==================================================
+- If the content is funny, sarcastic, ironic, meme-like, exaggerated, or intentionally informal:
+  Preserve jokes, punchlines, slang, exaggeration, sarcasm, irony, comedic timing, informal language, Gen-Z phrasing ("bro", "💀", "POV"), meme references, and intentional grammatical quirks. Do NOT "fix" intentional slang into formal English!
+- Evaluate humor on setup, punchline, surprise, relatability, comedic escalation, and payoff.
+- Evaluate emotional impact on vulnerability, contrast, setup, and payoff. Understand that a short sentence like "I wish I knew this before I started" can carry higher emotional impact than a long paragraph.
+
+==================================================
+CONTEXTUAL MEANING & DYNAMIC SCORING
+==================================================
+- Consider the FULL script context (HOOK -> SETUP -> DEVELOPMENT -> PAYOFF -> CTA). Respect intentional curiosity delays or delayed punchlines.
+- Dynamic Score Weighting:
+  * Comedy/POV/Meme: Humor + Retention + Relatability + Shareability matter most. Do NOT penalize for lacking educational bullet points.
+  * Educational/Tutorial: Value + Clarity + Retention + Saveability matter most. Do NOT penalize for lacking jokes.
+  * Storytelling/Emotional: Emotional Impact + Retention + Curiosity + Payoff matter most.
+- Every score (0-10) MUST include an explanation referencing actual words or phrases from the creator's input.
+
+==================================================
+THREE IMPROVEMENT VERSIONS & SEMANTIC CHECK
+==================================================
+Internally generate 3 versions:
+- VERSION 1 (LIGHT POLISH): 90–95% original wording preserved.
+- VERSION 2 (ELEVATE): The primary Improved Version! Sharpens hook, pacing, retention, comedic punchline, or curiosity while strictly preserving the creator's personality, humor, slang, tone, core message, and CTA intention.
+- VERSION 3 (CREATIVE ALTERNATIVE): Stronger alternative structure preserving core message & tone.
+
+SEMANTIC PRESERVATION CHECK on Version 2:
+Verify: Same core message? Same intended meaning? Same audience? Same emotional intent? Same humor? Same personality? Same CTA purpose?
+If NO: Rewrite Version 2 to restore the creator's authentic identity!
+
+==================================================
+AI PERSONA & OUTPUT FORMAT
+==================================================
+Communicate naturally like a top-tier Instagram Reels strategist talking to a fellow creator. Avoid corporate buzzwords ("leverage your ecosystem", "optimize acquisition funnel"). Speak directly ("Your idea is solid. The joke lands, but it arrives too late—move the punchline up...").
+
+Return ONLY a valid JSON object matching this exact structure:
 {
   "overallScore": 84,
-  "summary": "Short personalized 1-2 sentence summary of the script.",
+  "summary": "1-2 sentence sharp summary acknowledging what the creator is attempting to communicate and their specific tone/vibe.",
   "scores": {
-    "hook": { "score": 8.2, "explanation": "Short explanation", "indicator": "🔥 Strong" },
-    "retention": { "score": 7.5, "explanation": "Short explanation", "indicator": "⚡ Moderate" },
-    "value": { "score": 9.0, "explanation": "Short explanation", "indicator": "🔥 Strong" },
-    "shareability": { "score": 8.0, "explanation": "Short explanation", "indicator": "🔥 Strong" },
-    "saveability": { "score": 8.8, "explanation": "Short explanation", "indicator": "🔥 Strong" },
-    "emotionalImpact": { "score": 7.2, "explanation": "Short explanation", "indicator": "⚡ Moderate" },
-    "originality": { "score": 8.1, "explanation": "Short explanation", "indicator": "🔥 Strong" },
-    "clarity": { "score": 8.9, "explanation": "Short explanation", "indicator": "🔥 Strong" },
-    "cta": { "score": 6.8, "explanation": "Short explanation", "indicator": "⚠️ Needs Work" },
-    "trendAlignment": { "score": 8.5, "explanation": "Short explanation", "indicator": "🔥 Strong" }
+    "hook": { "score": 8.2, "explanation": "Detailed explanation referencing creator's exact words.", "indicator": "🔥 Strong" },
+    "retention": { "score": 7.5, "explanation": "Detailed explanation referencing creator's exact words.", "indicator": "⚡ Moderate" },
+    "value": { "score": 9.0, "explanation": "Detailed explanation referencing creator's exact words.", "indicator": "🔥 Strong" },
+    "shareability": { "score": 8.0, "explanation": "Detailed explanation referencing creator's exact words.", "indicator": "🔥 Strong" },
+    "saveability": { "score": 8.8, "explanation": "Detailed explanation referencing creator's exact words.", "indicator": "🔥 Strong" },
+    "emotionalImpact": { "score": 7.2, "explanation": "Detailed explanation referencing creator's exact words.", "indicator": "⚡ Moderate" },
+    "originality": { "score": 8.1, "explanation": "Detailed explanation referencing creator's exact words.", "indicator": "🔥 Strong" },
+    "clarity": { "score": 8.9, "explanation": "Detailed explanation referencing creator's exact words.", "indicator": "🔥 Strong" },
+    "cta": { "score": 6.8, "explanation": "Detailed explanation referencing creator's exact words.", "indicator": "⚠️ Needs Work" },
+    "trendAlignment": { "score": 8.5, "explanation": "Detailed explanation referencing creator's exact words.", "indicator": "🔥 Strong" }
   },
-  "strengths": ["🔥 Strength 1", "🔥 Strength 2", "🔥 Strength 3"],
-  "weaknesses": ["⚠️ Weakness 1", "⚠️ Weakness 2", "⚠️ Weakness 3"],
-  "verdict": "Concise strategic explanation of the score.",
-  "biggestChange": "ONE high-impact change recommendation.",
+  "strengths": ["🔥 Specific strength 1 referencing actual script words", "🔥 Specific strength 2 referencing actual script words", "🔥 Specific strength 3 referencing actual script words"],
+  "weaknesses": ["⚠️ Specific weakness 1 referencing actual script words", "⚠️ Specific weakness 2 referencing actual script words", "⚠️ Specific weakness 3 referencing actual script words"],
+  "verdict": "Natural, human-like strategic assessment from a top Reels strategist without corporate jargon.",
+  "biggestChange": "Exactly ONE highest-impact recommendation answering WHAT to change, WHY, and HOW, referencing actual lines.",
   "hookSuggestions": [
-    { "angle": "Curiosity", "hook": "Alternative hook 1" },
-    { "angle": "Contrarian", "hook": "Alternative hook 2" },
-    { "angle": "Emotional/Storytelling", "hook": "Alternative hook 3" }
+    { "angle": "Curiosity", "hook": "Alternative hook matching creator tone" },
+    { "angle": "Contrarian", "hook": "Alternative hook matching creator tone" },
+    { "angle": "Emotional/Storytelling", "hook": "Alternative hook matching creator tone" }
   ],
-  "retentionFix": "Practical retention fix suggestions.",
-  "trendAnalysis": { "score": 8.5, "explanation": "Trend fit explanation" },
-  "improvedVersion": "Fully improved rewritten script preserving core idea and creator voice."
+  "retentionFix": "Practical, specific pacing/retention recommendations for this script.",
+  "trendAnalysis": { "score": 8.5, "explanation": "Trend fit explanation tailored to current Reels consumption patterns for this format." },
+  "improvedVersion": "Version 2 (Elevate): Fully rewritten version that sharpens pacing/hook while strictly preserving the creator's tone, humor, slang, story, and personality!"
 }`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
+        model: "gemini-2.5-flash",
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -85,13 +278,15 @@ Return ONLY a valid JSON object following this exact structure:
       });
 
       const text = response.text || "{}";
-      const parsed = JSON.parse(text);
+      const parsed = parseCleanJSON(text);
 
-      return {
-        success: true,
-        isAI: true,
-        report: parsed
-      };
+      if (parsed && typeof parsed === "object" && parsed.overallScore) {
+        return {
+          success: true,
+          isAI: true,
+          report: parsed
+        };
+      }
     } catch (aiErr) {
       console.error("Gemini API call for content analysis failed, using rule engine:", aiErr);
     }
@@ -295,9 +490,39 @@ const SITEMAP_XML = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://elevateos.in/</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://elevateos.in/elevate-ai</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://elevateos.in/blueprint</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://elevateos.in/revenue</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://elevateos.in/services</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://elevateos.in/about</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>`;
 
@@ -337,6 +562,21 @@ export default {
           "Cache-Control": "public, max-age=86400, s-maxage=86400",
         },
       });
+    }
+
+    // API endpoint for ELEVATE AI — 7-Day Creator Roadmap
+    if (url.pathname === "/api/generate-roadmap" && request.method === "POST") {
+      try {
+        const body = await request.json().catch(() => ({}));
+        const apiKey = env?.GEMINI_API_KEY || process.env?.GEMINI_API_KEY;
+        const result = await handleGenerate7DayRoadmap(body, apiKey);
+        return Response.json(result);
+      } catch (err: any) {
+        return Response.json(
+          { error: "Elevate AI couldn't build your roadmap right now. Please try again.", message: err?.message },
+          { status: 500 }
+        );
+      }
     }
 
     // API endpoint for ELEVATE AI Content Analyzer
@@ -409,6 +649,20 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+
+  app.post("/api/generate-roadmap", async (req, res) => {
+    try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      const result = await handleGenerate7DayRoadmap(req.body, apiKey);
+      return res.json(result);
+    } catch (error: any) {
+      console.error("7-Day Roadmap generation error:", error);
+      return res.status(500).json({
+        error: "Elevate AI couldn't build your roadmap right now. Please try again.",
+        message: error?.message || "Internal server error"
+      });
+    }
+  });
 
   app.post("/api/analyze-content", async (req, res) => {
     try {

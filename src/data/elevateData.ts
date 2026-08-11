@@ -159,7 +159,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     name: 'Arya Tiwari',
     role: 'FOUNDER',
     subtitle: 'Vision, Strategy & Creator Architecture',
-    bio: 'Vision, strategy, creator growth and the long-term architecture of Elevate OS.',
+    bio: "Content creators are not just entertainers — they're the future of this generation. They carve out how we think, how we see, and how we act.",
     highlights: [
       'Brand Strategy & Creator Systems',
       'Content Psychology Architect',

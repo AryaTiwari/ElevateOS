@@ -33,6 +33,31 @@ export interface DiagnosticInput {
   currentBottleneck: string;
 }
 
+export interface SevenDayRoadmapInput {
+  creatorName: string;
+  niche: string;
+  audienceStage: string;
+  mainGoal: string;
+  currentBottleneck: string;
+}
+
+export interface DayPlan {
+  day: number;
+  focus: string;
+  action: string;
+  shortExplanation: string;
+}
+
+export interface SevenDayRoadmapResult {
+  creatorName: string;
+  niche: string;
+  audienceStage: string;
+  mainGoal: string;
+  currentBottleneck: string;
+  intro: string;
+  days: DayPlan[];
+}
+
 export interface RoadmapStep {
   stepNumber: string;
   title: string;

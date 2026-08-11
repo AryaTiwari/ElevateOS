@@ -27,70 +27,76 @@ export const ServicesSection: React.FC<ServicesSectionProps> = memo(({ onSelectS
         <div className="absolute top-1/2 right-4 text-xl select-none animate-pulse pointer-events-none hidden lg:block">🔥</div>
       </div>
 
-      <div className="w-[min(1120px,92%)] mx-auto relative z-10 space-y-16">
+      <div className="w-[min(1120px,92%)] mx-auto relative z-10 space-y-10">
         {/* SECTION HEADER */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center max-w-3xl mx-auto space-y-4"
+          className="text-center max-w-3xl mx-auto space-y-3"
         >
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-black tracking-[2px] uppercase shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-blue-600" />
             FLAGSHIP CREATOR PROGRAM
           </div>
 
-          <h2 className="text-[32px] sm:text-[42px] md:text-[52px] font-black leading-[1.05] tracking-[-2px] text-slate-900">
+          <h2 className="text-[28px] sm:text-[38px] md:text-[44px] font-black leading-[1.08] tracking-[-1.5px] text-slate-900">
             Not an agency. <span className="text-blue-600">A career engine for creators.</span>
           </h2>
 
-          <p className="text-slate-600 text-base sm:text-[17px] leading-relaxed font-medium">
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-medium">
             A well-proven system to become the next popular creator. Get a 1-on-1 session with an expert who will solve all your problems regarding content creation and pave a path for you to success and growth.
           </p>
         </motion.div>
 
-        {/* SINGLE FEATURED PROGRAM: CREATOR'S UPGRADE PROGRAM */}
+        {/* SINGLE FEATURED PROGRAM: CREATOR'S UPGRADE PROGRAM (FLAGSHIP) - COMPACT & PROMINENT */}
         <motion.div
           initial={{ opacity: 0, y: 25 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="bg-white border-2 border-blue-500/30 rounded-3xl p-6 sm:p-10 shadow-2xl shadow-blue-500/10 relative overflow-hidden"
+          className="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white border-2 border-amber-400/80 rounded-3xl p-5 sm:p-7 shadow-2xl shadow-indigo-500/20 relative overflow-hidden"
         >
-          {/* Top highlight bar */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-sky-500" />
+          {/* Top highlight gradient bar */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 animate-pulse" />
+          
+          {/* Background Glows */}
+          <div className="absolute -top-24 -right-24 w-72 h-72 bg-orange-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch relative z-10">
             {/* LEFT COLUMN: PROGRAM INFO */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-3xl p-2.5 bg-blue-50 border border-blue-200 rounded-2xl shrink-0">
-                  🌱
-                </span>
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-md border border-blue-200">
-                    FLAGSHIP 1-ON-1 PROGRAM
+            <div className="lg:col-span-7 space-y-4 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <span className="text-2xl p-2 bg-gradient-to-tr from-amber-500/20 to-orange-500/20 border border-amber-500/40 rounded-xl shrink-0 shadow-md">
+                    🌱
                   </span>
-                  <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-0.5">
-                    Creator's Upgrade Program™
-                  </h3>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-950 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300 px-2.5 py-0.5 rounded-full border border-amber-300 shadow-xs">
+                      👑 FLAGSHIP 1-ON-1 PROGRAM
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-1">
+                      Creator's Upgrade Program™
+                    </h3>
+                  </div>
                 </div>
+
+                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed font-medium">
+                  {upgradeProgram.description}
+                </p>
               </div>
 
-              <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-medium">
-                {upgradeProgram.description}
-              </p>
-
               {/* KEY DELIVERABLES LIST */}
-              <div className="space-y-3 pt-2">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-900 block">
-                  ✨ What You Get In The Upgrade Program:
+              <div className="space-y-2">
+                <span className="text-[11px] font-black uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" /> What You Get In The Upgrade Program:
                 </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-slate-700 font-semibold">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-200 font-semibold">
                   {upgradeProgram.extendedDetails?.map((detail, idx) => (
-                    <div key={idx} className="flex items-start gap-2.5 p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <div key={idx} className="flex items-start gap-2 p-2.5 bg-slate-900/90 border border-indigo-500/30 rounded-xl shadow-xs hover:border-amber-400/50 transition-colors">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
                       <span>{detail}</span>
                     </div>
                   ))}
@@ -98,25 +104,25 @@ export const ServicesSection: React.FC<ServicesSectionProps> = memo(({ onSelectS
               </div>
 
               {/* BUDGET PROMISE BANNER */}
-              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-xs text-emerald-900 font-medium">
-                <HeartHandshake className="w-5 h-5 text-emerald-600 shrink-0" />
-                <div>
-                  <strong className="text-slate-900 block font-bold">100% Creator Budget-Adjusted Rates:</strong>
-                  <span>Program pricing is dynamically scaled to your current channel stage — zero agency overhead or hidden fees.</span>
+              <div className="p-3 bg-gradient-to-r from-emerald-950/90 via-slate-900 to-teal-950/90 border border-emerald-500/40 rounded-xl flex items-center gap-2.5 text-xs text-emerald-200 font-medium shadow-xs">
+                <HeartHandshake className="w-4 h-4 text-emerald-400 shrink-0" />
+                <div className="text-[11px]">
+                  <strong className="text-white font-bold inline mr-1">100% Creator Budget-Adjusted Rates:</strong>
+                  <span>Program pricing is dynamically scaled to your channel stage — zero hidden fees.</span>
                 </div>
               </div>
             </div>
 
             {/* RIGHT COLUMN: ACTION BOX & APPLY CALLOUT */}
-            <div className="lg:col-span-5 bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 p-6 sm:p-8 rounded-2xl text-white space-y-6 shadow-xl relative overflow-hidden border border-blue-500/20">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="lg:col-span-5 bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 p-5 sm:p-6 rounded-2xl text-white space-y-4 shadow-xl relative overflow-hidden border-2 border-amber-400/50 flex flex-col justify-between">
+              <div className="absolute top-0 right-0 w-36 h-36 bg-orange-500/20 rounded-full blur-2xl pointer-events-none" />
 
               <div className="space-y-2 relative z-10">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[10px] font-black uppercase tracking-wider">
-                  <Zap className="w-3 h-3 text-amber-400" />
+                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 text-[9px] font-black uppercase tracking-wider">
+                  <Zap className="w-3 h-3 text-amber-400 animate-pulse" />
                   LIMITED CREATOR SPOTS AVAILABLE
                 </div>
-                <h4 className="text-xl font-black text-white">
+                <h4 className="text-lg sm:text-xl font-black text-white leading-tight">
                   Ready to upgrade your creator career?
                 </h4>
                 <p className="text-xs text-slate-300 leading-relaxed font-medium">
@@ -124,20 +130,20 @@ export const ServicesSection: React.FC<ServicesSectionProps> = memo(({ onSelectS
                 </p>
               </div>
 
-              <div className="space-y-3 relative z-10">
+              <div className="space-y-2.5 relative z-10 pt-1">
                 <button
                   type="button"
                   onClick={() => onSelectService(upgradeProgram)}
-                  className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 hover:from-blue-700 hover:via-indigo-700 hover:to-sky-700 text-white font-black text-xs sm:text-sm rounded-xl transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider group"
+                  className="w-full py-3 px-5 bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 hover:opacity-95 text-slate-950 font-black text-xs rounded-xl transition-all shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider group transform hover:scale-[1.01]"
                 >
                   <span>Apply For Upgrade Program</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(true)}
-                  className="w-full py-3 px-4 bg-white/10 hover:bg-white/15 text-slate-200 font-bold text-xs rounded-xl border border-white/15 transition-all cursor-pointer text-center"
+                  className="w-full py-2.5 px-3 bg-white/10 hover:bg-white/15 text-slate-100 font-bold text-xs rounded-xl border border-white/20 transition-all cursor-pointer text-center"
                 >
                   View Full Program Breakdown →
                 </button>
@@ -147,7 +153,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = memo(({ onSelectS
                 <span className="flex items-center gap-1 text-emerald-400">
                   <ShieldCheck className="w-3.5 h-3.5" /> 1-on-1 Mentorship
                 </span>
-                <span>Tailored Action Blueprint</span>
+                <span className="text-amber-300">Tailored Action Blueprint</span>
               </div>
             </div>
           </div>
@@ -159,56 +165,56 @@ export const ServicesSection: React.FC<ServicesSectionProps> = memo(({ onSelectS
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="bg-slate-50 border border-slate-200/90 rounded-3xl p-6 sm:p-10 space-y-8"
+          className="bg-slate-900 border border-slate-800 text-white rounded-3xl p-6 sm:p-10 space-y-8 shadow-xl"
         >
           {/* PROBLEM HEADER */}
           <div className="max-w-2xl space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-black uppercase tracking-wider">
               <span>⚠️</span>
               <span>THE CREATOR GROWTH BOTTLENECK</span>
             </div>
-            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
               Creators don't need more random advice. They need a system.
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
               Chasing random viral trends and generic tips leads to burnout. True creator longevity comes from mastering three core pillars:
             </p>
           </div>
 
-          {/* 3 CREATOR-FRIENDLY PILLAR CARDS */}
+          {/* 3 CREATOR-FRIENDLY PILLAR CARDS WITH VIBRANT COLORS */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-2.5">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-xl">
+            <div className="p-5 bg-gradient-to-br from-blue-950/80 via-slate-900 to-slate-900 border-2 border-blue-500/40 rounded-2xl shadow-lg space-y-3 hover:border-blue-400 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/40 flex items-center justify-center text-xl">
                 💎
               </div>
-              <h4 className="text-sm font-black text-slate-900">
+              <h4 className="text-sm font-black text-white">
                 1. 1-on-1 Expert Problem Solving
               </h4>
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
+              <p className="text-xs text-slate-300 leading-relaxed font-medium">
                 A 1-on-1 session with an expert who will solve all your problems regarding content creation and pave a path for you to success and growth.
               </p>
             </div>
 
-            <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-2.5">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-xl">
+            <div className="p-5 bg-gradient-to-br from-emerald-950/80 via-slate-900 to-slate-900 border-2 border-emerald-500/40 rounded-2xl shadow-lg space-y-3 hover:border-emerald-400 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-xl">
                 🔥
               </div>
-              <h4 className="text-sm font-black text-slate-900">
+              <h4 className="text-sm font-black text-white">
                 2. Content-Enhancing Secrets & Tricks
               </h4>
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
+              <p className="text-xs text-slate-300 leading-relaxed font-medium">
                 Master hook psychology and secret content hacks to perform significantly better than competing and higher creators.
               </p>
             </div>
 
-            <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-2.5">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-xl">
+            <div className="p-5 bg-gradient-to-br from-amber-950/80 via-slate-900 to-slate-900 border-2 border-amber-500/40 rounded-2xl shadow-lg space-y-3 hover:border-amber-400 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-xl">
                 🚀
               </div>
-              <h4 className="text-sm font-black text-slate-900">
+              <h4 className="text-sm font-black text-white">
                 3. Well-Proven Growth System
               </h4>
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
+              <p className="text-xs text-slate-300 leading-relaxed font-medium">
                 Follow a well-proven system to become the next popular creator and grow higher in today's fierce competitive field.
               </p>
             </div>

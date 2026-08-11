@@ -175,10 +175,11 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
       }
 
       setReport(data.report);
+      setShowImproved(true);
       saveToHistory(data.report, script || concept || hook);
     } catch (err: any) {
       console.error("Analysis error:", err);
-      setError("Elevate AI couldn't analyze this content right now. Please try again.");
+      setError(err?.message || "Elevate AI couldn't analyze this content right now. Please try again.");
     } finally {
       setLoading(false);
     }

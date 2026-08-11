@@ -1,33 +1,64 @@
-import React, { useState, useCallback } from 'react';
-import bgImage from './assets/images/creator_growth_bg_1786109638246.jpg';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Navbar } from './components/Navbar';
-import { Hero } from './components/Hero';
-import { CreatorScoreCard } from './components/CreatorScoreCard';
-import { WhySection } from './components/WhySection';
-import { ServicesSection } from './components/ServicesSection';
-import { GenZBackground } from './components/GenZBackground';
-
-import { DiagnosticTool } from './components/DiagnosticTool';
-import { CtaSection } from './components/CtaSection';
-import { FaqSection } from './components/FaqSection';
+import { HomePage } from './components/HomePage';
+import { ElevateAIPage } from './components/ElevateAIPage';
+import { BlueprintPage } from './components/BlueprintPage';
+import { RevenueCalculator } from './components/RevenueCalculator';
+import { ServicesPage } from './components/ServicesPage';
+import { AboutPage } from './components/AboutPage';
 import { Footer } from './components/Footer';
 import { BookingModal } from './components/BookingModal';
 import { FlagshipModal } from './components/FlagshipModal';
 import { LegalModal } from './components/LegalModal';
 import { TermsConsentModal } from './components/TermsConsentModal';
-import { InstagramPromoSection } from './components/InstagramPromoSection';
-import { FounderSection } from './components/FounderSection';
-import { AboutSection } from './components/AboutSection';
-
+import { GenZBackground } from './components/GenZBackground';
 import { ServiceItem } from './types';
-import { Sparkles } from 'lucide-react';
+
+function getInitialRoute(): string {
+  const path = window.location.pathname;
+  if (path === '/elevate-ai') return 'elevate-ai';
+  if (path === '/blueprint') return 'blueprint';
+  if (path === '/revenue') return 'revenue';
+  if (path === '/services') return 'services';
+  if (path === '/about') return 'about';
+  return 'home';
+}
+
+const ROUTE_TO_PATH: Record<string, string> = {
+  home: '/',
+  'elevate-ai': '/elevate-ai',
+  blueprint: '/blueprint',
+  revenue: '/revenue',
+  services: '/services',
+  about: '/about'
+};
 
 export default function App() {
+  const [route, setRoute] = useState<string>(getInitialRoute);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [flagshipModalOpen, setFlagshipModalOpen] = useState(false);
   const [selectedServiceForBooking, setSelectedServiceForBooking] = useState<string | undefined>(undefined);
   const [legalModalOpen, setLegalModalOpen] = useState(false);
   const [legalTab, setLegalTab] = useState<'privacy' | 'terms'>('privacy');
+
+  // Handle URL changes & back/forward browser navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      setRoute(getInitialRoute());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const handleNavigate = useCallback((newRoute: string) => {
+    const path = ROUTE_TO_PATH[newRoute] || '/';
+    if (window.location.pathname !== path) {
+      window.history.pushState({}, '', path);
+    }
+    setRoute(newRoute);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const handleOpenBooking = useCallback((serviceTitle?: string) => {
     setSelectedServiceForBooking(serviceTitle);
@@ -35,7 +66,7 @@ export default function App() {
   }, []);
 
   const handleOpenBookingFreeSession = useCallback(() => {
-    handleOpenBooking("Free Strategy Session");
+    handleOpenBooking('Free Strategy Session');
   }, [handleOpenBooking]);
 
   const handleOpenBookingUpgradeProgram = useCallback(() => {
@@ -52,15 +83,8 @@ export default function App() {
   }, []);
 
   const handleSelectServiceFromCard = useCallback((service: ServiceItem) => {
-    handleOpenBooking(service.title || "Free Strategy Session");
+    handleOpenBooking(service.title || 'Free Strategy Session');
   }, [handleOpenBooking]);
-
-  const scrollToAudit = useCallback(() => {
-    const el = document.getElementById('audit');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, []);
 
   const handleCloseBooking = useCallback(() => {
     setBookingModalOpen(false);
@@ -76,65 +100,77 @@ export default function App() {
 
   return (
     <div className="min-h-screen text-slate-900 font-sans selection:bg-blue-500/20 selection:text-blue-800 bg-slate-50 relative overflow-x-hidden">
-      {/* GEN Z FLOATING BACKGROUND GRAPHICS & SOCIAL MEDIA COMPONENTS */}
+      {/* GEN Z FLOATING BACKGROUND GRAPHICS & SOCIAL MEDIA ACCENTS */}
       <GenZBackground />
 
-      <div className="relative z-10">
-        {/* NAVBAR */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* STICKY NAVBAR */}
         <Navbar
+          currentRoute={route}
+          onNavigate={handleNavigate}
           onOpenBooking={handleOpenBookingFreeSession}
-          onOpenFlagship={handleOpenBookingUpgradeProgram}
-          onOpenAudit={scrollToAudit}
         />
 
-        {/* MAIN CONTENT SECTIONS */}
-        <main>
-          {/* 1. THE INTRO PAGE */}
-          <Hero
-            onOpenBooking={handleOpenBookingFreeSession}
-            onOpenFlagship={handleOpenBookingUpgradeProgram}
-            onOpenAudit={scrollToAudit}
-          />
+        {/* PAGE CONTENT CONTAINER */}
+        <main className="flex-1 w-[min(1120px,92%)] mx-auto py-8 sm:py-12">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={route}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="gpu-layer"
+            >
+              {route === 'home' && (
+                <HomePage
+                  onNavigate={handleNavigate}
+                  onOpenBooking={handleOpenBookingFreeSession}
+                />
+              )}
 
-          {/* ELEVATE AI CONTENT ANALYZER SECTION */}
-          <section id="creator-score-section" className="py-12 md:py-20 w-[min(1120px,92%)] mx-auto relative z-10 scroll-mt-24">
-            <div className="text-center max-w-2xl mx-auto mb-10">
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-black text-blue-700 tracking-widest uppercase bg-blue-100/80 border border-blue-200 px-3.5 py-1.5 rounded-full shadow-sm">
-                <Sparkles className="w-3.5 h-3.5 text-blue-600" /> AI REELS STRATEGIST
-              </span>
-              <h2 className="text-3xl md:text-5xl font-black text-slate-900 mt-4 tracking-tight leading-none">
-                Elevate AI — <span className="text-blue-600">Content Analyzer</span> 🧠⚡
-              </h2>
-              <p className="text-xs md:text-sm text-slate-600 mt-3 font-medium max-w-lg mx-auto leading-relaxed">
-                Don't guess why your Reel isn't working. Paste your script or video concept and get instant, AI-powered retention, hook, and virality feedback.
-              </p>
-            </div>
-            <CreatorScoreCard
-              onOpenBooking={handleOpenBookingFreeSession}
-              onOpenFlagship={handleOpenBookingUpgradeProgram}
-            />
-          </section>
+              {route === 'elevate-ai' && (
+                <ElevateAIPage
+                  onOpenBooking={handleOpenBookingFreeSession}
+                  onOpenFlagship={handleOpenBookingUpgradeProgram}
+                  onNavigateToBlueprint={() => handleNavigate('blueprint')}
+                />
+              )}
 
-          {/* 2. THE PROBLEM */}
-          <WhySection onOpenBooking={handleOpenBookingFreeSession} />
+              {route === 'blueprint' && (
+                <BlueprintPage
+                  onOpenBooking={handleOpenBookingFreeSession}
+                />
+              )}
 
-          {/* 3. DIAGNOSE YOUR CREATOR BOTTLENECK */}
-          <DiagnosticTool onOpenBooking={handleOpenBookingFreeSession} />
+              {route === 'revenue' && (
+                <RevenueCalculator
+                  onOpenBooking={handleOpenBookingFreeSession}
+                />
+              )}
 
-          <ServicesSection onSelectService={handleSelectServiceFromCard} />
-          
-          {/* ABOUT SECTION (INSTAGRAM & FOUNDER ARYA TIWARI) */}
-          <AboutSection onOpenBooking={handleOpenBookingFreeSession} />
+              {route === 'services' && (
+                <ServicesPage
+                  onOpenBooking={handleOpenBookingFreeSession}
+                  onSelectService={handleSelectServiceFromCard}
+                />
+              )}
 
-          {/* FREQUENTLY ASKED QUESTIONS */}
-          <FaqSection onOpenBooking={handleOpenBookingFreeSession} />
-
-          {/* FINAL CTA */}
-          <CtaSection onOpenBooking={handleOpenBookingFreeSession} />
+              {route === 'about' && (
+                <AboutPage
+                  onOpenBooking={handleOpenBookingFreeSession}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
         </main>
 
         {/* FOOTER */}
-        <Footer onOpenLegal={handleOpenLegal} />
+        <Footer
+          onNavigate={handleNavigate}
+          onOpenBooking={handleOpenBookingFreeSession}
+          onOpenLegal={handleOpenLegal}
+        />
 
         {/* INTAKE / BOOKING MODAL */}
         <BookingModal
@@ -162,5 +198,3 @@ export default function App() {
     </div>
   );
 }
-
-

@@ -70,55 +70,49 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
 
     // Direct browser post to Google Apps Script as text/plain (no-cors)
     try {
-      fetch(APPS_SCRIPT_URL, {
+      await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(directPayload)
-      }).catch((err) => console.error('Direct Google Apps Script fetch error:', err));
-    } catch (e) {
-      console.error('Direct fetch error:', e);
+      });
+    } catch (err) {
+      console.error('Direct Google Apps Script fetch error:', err);
     }
 
-    try {
-      const response = await fetch('/api/book-strategy-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit booking');
-      }
-
-      setLastSubmittedData({ ...formData });
-      setFormData({
-        fullName: '',
-        phoneNumber: '',
-        instagramId: '',
-        currentProblem: '',
-        email: '',
-      });
-      setSubmitted(true);
-    } catch (err: any) {
-      console.error("Booking error:", err);
-      setErrorMessage(err.message || "Failed to submit strategy session request. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    setLastSubmittedData({ ...formData });
+    setFormData({
+      fullName: '',
+      phoneNumber: '',
+      instagramId: '',
+      currentProblem: '',
+      email: '',
+    });
+    setSubmitted(true);
+    setIsSubmitting(false);
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto contain-strict">
+          {/* Smooth Backdrop Overlay */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            onClick={onClose}
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm gpu-layer"
+          />
+
+          {/* Modal Container */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 sm:p-8 relative shadow-2xl my-8 text-left"
+            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 sm:p-8 relative shadow-2xl my-8 text-left z-10 gpu-layer"
           >
             <button
               onClick={onClose}
@@ -129,14 +123,19 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
 
             {!submitted ? (
               <div>
-                <div className="flex items-center gap-2 text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">
-                  <Calendar className="w-4 h-4" /> 1-ON-1 STRATEGY CALL
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-1.5 text-xs font-black text-blue-600 uppercase tracking-wider">
+                    <Calendar className="w-4 h-4 text-blue-600" /> 1-ON-1 STRATEGY CALL
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-0.5 rounded-full">
+                    100% Free • 0 Obligation
+                  </span>
                 </div>
                 <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-1">
-                  Book a Free Strategy Session
+                  Book Your Free Strategy Session 🚀
                 </h3>
-                <p className="text-slate-600 text-xs sm:text-sm mb-6 leading-relaxed font-medium">
-                  Fill in your details below. Our team will analyze your channel and schedule a free 1-on-1 strategy call with you.
+                <p className="text-slate-600 text-xs sm:text-sm mb-5 leading-relaxed font-medium">
+                  Fill in your details below for a complimentary 1-on-1 strategy call with Arya Tiwari & the Elevate OS team. We'll analyze your channel, hooks, and growth bottlenecks.
                 </p>
 
                 <form onSubmit={handleSendEmail} className="space-y-4">

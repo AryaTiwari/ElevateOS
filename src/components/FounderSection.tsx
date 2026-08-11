@@ -26,10 +26,10 @@ export function FounderSection() {
 
               <div className="space-y-4 text-slate-300 text-sm sm:text-base leading-relaxed">
                 <p>
-                  Elevate OS was founded by <strong className="text-white font-extrabold underline decoration-orange-500 decoration-2 underline-offset-4">Arya Tiwari</strong> with an unwavering belief: that the upcoming generation of Indian creators, builders, and storytellers will redefine how millions learn, buy, and connect.
+                  Elevate OS was founded by <strong className="text-white font-extrabold border-b border-indigo-400/50">Arya Tiwari</strong> with an unwavering belief: that the upcoming generation of Indian creators, builders, and storytellers will redefine how millions learn, buy, and connect.
                 </p>
                 <p>
-                  Too many brilliant creators struggle with inconsistent algorithms, burnt-out schedules, and missed monetization. Arya built Elevate OS to provide the exact systems, analytics, and scaling infrastructure required to turn passionate creators into enduring digital institutions.
+                  Too many brilliant creators struggle with inconsistent algorithms, burnt-out schedules, and missed monetization. Elevate OS was built to provide the exact systems, analytics, and scaling infrastructure required to turn passionate creators into enduring digital institutions.
                 </p>
               </div>
 
@@ -94,7 +94,7 @@ export function FounderSection() {
                   <p className="text-xs text-orange-300 font-semibold">
                     "The future belongs to those who build communities of trust and value."
                   </p>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-widest mt-1 block">— Arya Tiwari</span>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-widest mt-1 block">— Founder, Elevate OS</span>
                 </div>
 
               </div>

@@ -112,10 +112,10 @@ export const Hero: React.FC<HeroProps> = memo(({ onOpenBooking, onOpenFlagship, 
           
           {/* TOP PILL */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1, duration: 0.4 }}
-            className="inline-flex items-center px-4 py-1.5 rounded-full border border-blue-200 bg-blue-50/80 text-blue-700 text-[10px] font-black uppercase tracking-widest mb-6 select-none shadow-sm"
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="inline-flex items-center px-4 py-1.5 rounded-full border border-blue-200 bg-blue-50/80 text-blue-700 text-[10px] font-black uppercase tracking-widest mb-6 select-none shadow-sm gpu-layer"
           >
             <Sparkles className="w-3.5 h-3.5 text-blue-600 mr-1.5 animate-pulse" />
             🔥 ATTENTION CREATORS: STOP WASTING 80% OF YOUR VIEWS ✨
@@ -123,30 +123,30 @@ export const Hero: React.FC<HeroProps> = memo(({ onOpenBooking, onOpenFlagship, 
 
           {/* MAIN HEADING */}
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-[44px] sm:text-[60px] md:text-[76px] lg:text-[84px] leading-[0.9] font-black tracking-tighter text-slate-900 mb-6 max-w-3xl"
+            transition={{ duration: 0.3, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+            className="text-[44px] sm:text-[60px] md:text-[76px] lg:text-[84px] leading-[0.9] font-black tracking-tighter text-slate-900 mb-6 max-w-3xl gpu-layer"
           >
             The <span className="text-blue-600 inline-block">Operating System</span> for Content Creators & Influencers.
           </motion.h1>
 
           {/* SUBTITLE */}
           <motion.p
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="text-slate-600 text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mb-5 font-medium"
+            transition={{ duration: 0.3, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="text-slate-600 text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mb-5 font-medium gpu-layer"
           >
             Stop guessing the algorithm. Get a 1-on-1 session with an expert who solves your content creation problems, unlocks viral retention tricks, and paves your path to success and growth — with rates tailored 100% to your budget.
           </motion.p>
 
           {/* BUDGET TRUST PILL */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold mb-8 select-none shadow-sm"
+            transition={{ duration: 0.3, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold mb-8 select-none shadow-sm gpu-layer"
           >
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>⚡ 100% Creator-Budget Friendly • 1-on-1 Expert Guidance to Success & Growth 🚀</span>
@@ -154,10 +154,10 @@ export const Hero: React.FC<HeroProps> = memo(({ onOpenBooking, onOpenFlagship, 
 
           {/* TWO MAIN CTA BUTTONS (WITH GRAPHICS) */}
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto justify-center"
+            transition={{ duration: 0.3, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto justify-center gpu-layer"
           >
             {/* BUTTON 1: FREE STRATEGY SESSION (3D SOLID GREEN) */}
             <motion.button

@@ -54,6 +54,9 @@ export function generateRuleBasedAnalysis(input: ContentAnalysisInput): ContentA
   const words = text.split(/\s+/).filter(Boolean);
   const wordCount = words.length;
 
+  const isComedyOrPOV = /(POV:|bro|💀|lmao|funny|gym|batman|gotham|meme|when you|nobody:|literally|me when|thought|haha|lol)/i.test(text);
+  const isEmotionalOrStory = /(spent|years|realized|nobody|honest|wish|fail|hardest|truth|lost|started|alone)/i.test(text) && !isComedyOrPOV;
+
   const hasQuestion = /\?/.test(text);
   const hasNumbers = /\d+/.test(text);
   const hasStrongWords = /(secret|mistake|stop|never|how to|why|reason|truth|proven|fail|unlock|guaranteed|hidden|simple)/i.test(text);
@@ -62,71 +65,56 @@ export function generateRuleBasedAnalysis(input: ContentAnalysisInput): ContentA
   const niche = input.niche || 'Content & Growth';
   const goal = input.creatorGoal || 'Grow followers';
 
-  // Dynamic calculations based on actual script traits
-  let hookScore = 6.5;
-  if (hasQuestion) hookScore += 1.0;
-  if (hasNumbers) hookScore += 0.8;
-  if (hasStrongWords) hookScore += 1.0;
-  if (wordCount > 5 && wordCount < 40) hookScore += 0.5;
-  hookScore = Math.min(9.8, Math.max(4.5, Number(hookScore.toFixed(1))));
+  // Dynamic calculations based on actual script traits & style
+  let hookScore = 7.0;
+  if (isComedyOrPOV) hookScore += 1.5;
+  if (hasQuestion || hasStrongWords) hookScore += 1.0;
+  if (hasNumbers) hookScore += 0.5;
+  hookScore = Math.min(9.8, Math.max(5.0, Number(hookScore.toFixed(1))));
 
-  let retentionScore = 6.0;
-  if (wordCount >= 20 && wordCount <= 120) retentionScore += 2.0; // Sweet spot for short-form
-  else if (wordCount > 120 && wordCount <= 250) retentionScore += 1.0;
-  else if (wordCount < 15) retentionScore -= 1.0;
-  if (hasNumbers) retentionScore += 0.8;
-  retentionScore = Math.min(9.6, Math.max(4.0, Number(retentionScore.toFixed(1))));
+  let retentionScore = 6.8;
+  if (wordCount >= 10 && wordCount <= 80) retentionScore += 1.5;
+  if (isComedyOrPOV || isEmotionalOrStory) retentionScore += 1.0;
+  retentionScore = Math.min(9.6, Math.max(4.5, Number(retentionScore.toFixed(1))));
 
-  let valueScore = 6.5;
-  if (hasNumbers) valueScore += 1.2;
-  if (wordCount > 30) valueScore += 1.0;
-  valueScore = Math.min(9.7, Math.max(4.8, Number(valueScore.toFixed(1))));
+  let valueScore = isComedyOrPOV ? 7.8 : 6.5;
+  if (hasNumbers || wordCount > 30) valueScore += 1.2;
+  valueScore = Math.min(9.7, Math.max(5.0, Number(valueScore.toFixed(1))));
 
-  let shareabilityScore = 6.2;
-  if (hasStrongWords) shareabilityScore += 1.2;
-  if (hasQuestion) shareabilityScore += 0.8;
-  shareabilityScore = Math.min(9.5, Math.max(4.2, Number(shareabilityScore.toFixed(1))));
+  let shareabilityScore = isComedyOrPOV ? 8.8 : 6.8;
+  if (hasStrongWords || isEmotionalOrStory) shareabilityScore += 1.0;
+  shareabilityScore = Math.min(9.8, Math.max(5.0, Number(shareabilityScore.toFixed(1))));
 
-  let saveabilityScore = 6.0;
+  let saveabilityScore = isComedyOrPOV ? 6.2 : 7.2;
   if (hasNumbers) saveabilityScore += 1.5;
-  if (wordCount > 40) saveabilityScore += 1.0;
-  saveabilityScore = Math.min(9.8, Math.max(4.0, Number(saveabilityScore.toFixed(1))));
+  saveabilityScore = Math.min(9.8, Math.max(4.5, Number(saveabilityScore.toFixed(1))));
 
-  let emotionalImpactScore = 6.4;
-  if (hasStrongWords) emotionalImpactScore += 1.5;
-  if (hasQuestion) emotionalImpactScore += 0.8;
-  emotionalImpactScore = Math.min(9.5, Math.max(4.5, Number(emotionalImpactScore.toFixed(1))));
+  let emotionalImpactScore = (isComedyOrPOV || isEmotionalOrStory) ? 8.5 : 6.8;
+  if (hasStrongWords) emotionalImpactScore += 1.0;
+  emotionalImpactScore = Math.min(9.8, Math.max(5.0, Number(emotionalImpactScore.toFixed(1))));
 
-  let originalityScore = 7.2;
-  if (!hasStrongWords) originalityScore += 0.5; // Avoids cliché
-  originalityScore = Math.min(9.4, Math.max(5.0, Number(originalityScore.toFixed(1))));
+  let originalityScore = isComedyOrPOV ? 8.2 : 7.5;
+  originalityScore = Math.min(9.6, Math.max(5.5, Number(originalityScore.toFixed(1))));
 
-  let clarityScore = 7.0;
-  if (wordCount > 10 && wordCount < 150) clarityScore += 1.5;
-  clarityScore = Math.min(9.9, Math.max(5.2, Number(clarityScore.toFixed(1))));
+  let clarityScore = 8.0;
+  if (wordCount > 5 && wordCount < 100) clarityScore += 1.2;
+  clarityScore = Math.min(9.9, Math.max(6.0, Number(clarityScore.toFixed(1))));
 
-  let ctaScore = hasCTA ? 8.5 : 4.8;
+  let ctaScore = hasCTA ? 8.5 : (isComedyOrPOV ? 6.8 : 5.0);
   if (input.cta) ctaScore += 0.8;
-  ctaScore = Math.min(9.8, Math.max(3.5, Number(ctaScore.toFixed(1))));
+  ctaScore = Math.min(9.8, Math.max(4.0, Number(ctaScore.toFixed(1))));
 
-  let trendScore = 7.5;
-  if (hasNumbers || hasStrongWords) trendScore += 1.0;
-  trendScore = Math.min(9.6, Math.max(5.0, Number(trendScore.toFixed(1))));
+  let trendScore = isComedyOrPOV ? 8.8 : 7.5;
+  trendScore = Math.min(9.6, Math.max(5.5, Number(trendScore.toFixed(1))));
 
-  // Reasoned overall synthesis (weighted)
-  const weightedSum =
-    hookScore * 0.18 +
-    retentionScore * 0.16 +
-    valueScore * 0.12 +
-    shareabilityScore * 0.10 +
-    saveabilityScore * 0.10 +
-    emotionalImpactScore * 0.08 +
-    originalityScore * 0.08 +
-    clarityScore * 0.08 +
-    ctaScore * 0.05 +
-    trendScore * 0.05;
+  // Reasoned overall synthesis based on style
+  const weightedSum = isComedyOrPOV
+    ? (hookScore * 0.22 + retentionScore * 0.20 + shareabilityScore * 0.20 + emotionalImpactScore * 0.15 + originalityScore * 0.13 + ctaScore * 0.10)
+    : isEmotionalOrStory
+    ? (emotionalImpactScore * 0.22 + retentionScore * 0.20 + hookScore * 0.18 + shareabilityScore * 0.15 + clarityScore * 0.15 + ctaScore * 0.10)
+    : (hookScore * 0.18 + retentionScore * 0.16 + valueScore * 0.15 + saveabilityScore * 0.12 + clarityScore * 0.12 + shareabilityScore * 0.10 + ctaScore * 0.10 + trendScore * 0.07);
 
-  const overallScore = Math.min(98, Math.max(42, Math.round(weightedSum * 10)));
+  const overallScore = Math.min(98, Math.max(45, Math.round(weightedSum * 10)));
 
   const getIndicator = (s: number): '🔥 Strong' | '⚡ Moderate' | '⚠️ Needs Work' => {
     if (s >= 8.0) return '🔥 Strong';
@@ -134,7 +122,33 @@ export function generateRuleBasedAnalysis(input: ContentAnalysisInput): ContentA
     return '⚠️ Needs Work';
   };
 
-  const firstSentence = text.split(/[.!?\n]/).filter(Boolean)[0] || text;
+  const summary = isComedyOrPOV
+    ? `Your POV/comedic setup has strong comedic resonance and shareability. The primary goal is tightening the setup so the punchline lands faster.`
+    : isEmotionalOrStory
+    ? `Your story carries authentic emotional weight and vulnerability. Focusing on the pivotal realization moment will maximize watch time.`
+    : `Your ${niche} content concept has solid clarity. Sharpening the first 2 seconds will lift total completion rate.`;
+
+  const verdict = isComedyOrPOV
+    ? `Great humorous premise! Comedy Reels succeed when the contrast and punchline land without unnecessary setup text.`
+    : isEmotionalOrStory
+    ? `Powerful personal narrative. Keep the sentence structure lean so the emotional realization hits the viewer directly.`
+    : `Solid foundation for ${niche}. Enhancing the opening hook curiosity gap will increase your view-to-completion ratio.`;
+
+  const biggestChange = isComedyOrPOV
+    ? `Deliver the comedic payoff or punchline 1-2 seconds earlier so scrollers get the joke instantly before swiping.`
+    : isEmotionalOrStory
+    ? `Break up the narrative into punchy 2-line visual text blocks so viewers feel the emotional tension line by line.`
+    : `Lead directly with the most surprising outcome or data point in sentence 1.`;
+
+  // Preserve creator voice in improved script fallback
+  let improvedVersion = text;
+  if (isComedyOrPOV && text) {
+    improvedVersion = text.includes("💀") ? text : `${text} 💀`;
+  } else if (isEmotionalOrStory && text) {
+    improvedVersion = text;
+  } else if (text) {
+    improvedVersion = `${text}\n\nComment "ELEVATE" below for the complete step-by-step breakdown!`;
+  }
 
   return {
     overallScore,
@@ -212,8 +226,8 @@ export function generateRuleBasedAnalysis(input: ContentAnalysisInput): ContentA
       !hasCTA ? "⚠️ Missing a clear comment trigger or lead-magnet CTA" : "⚠️ CTA could offer a stronger incentive than a generic ask",
       saveabilityScore < 8.0 ? "⚠️ Payoff could be formatted as a step-by-step list to boost saves" : "⚠️ Mid-video transition could use a pattern interrupt"
     ],
-    verdict: `Your concept aligns well with your goal to ${goal.toLowerCase()}. Refining the first 3 seconds and delivering a concrete payoff will raise your completion and save metrics.`,
-    biggestChange: `Open directly with a high-contrast claim like: "${firstSentence.length > 50 ? 'Stop scrolling if you want to grow in ' + niche : 'The real secret behind viral ' + niche + ' Reels is...'}"`,
+    verdict,
+    biggestChange,
     hookSuggestions: [
       {
         angle: "Curiosity",
