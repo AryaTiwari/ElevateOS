@@ -234,10 +234,10 @@ export const InfluencerFeatures: React.FC<InfluencerFeaturesProps> = ({ onOpenBo
           </div>
 
           <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
             onClick={onOpenBooking}
-            className="px-6 py-3.5 bg-[#3B82F6] hover:bg-[#4B8CF7] text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-[#3B82F6]/25 whitespace-nowrap cursor-pointer flex items-center gap-2 shrink-0"
+            className="px-6 py-3.5 bg-[#3B82F6] hover:bg-[#4B8CF7] text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-[#3B82F6]/25 whitespace-nowrap cursor-pointer flex items-center gap-2 shrink-0 active:translate-y-0.5"
           >
             <Sparkles className="w-4 h-4 text-[#BFDBFE]" />
             Book Free Strategy Session

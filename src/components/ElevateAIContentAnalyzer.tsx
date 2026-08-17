@@ -486,10 +486,10 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
             {/* SUBMIT BUTTON */}
             <div className="text-center pt-2">
               <motion.button
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98, y: 1 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={handleAnalyze}
-                className="bg-blue-600 hover:bg-blue-700 border-2 border-blue-700 border-b-[6px] border-b-blue-900 px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider text-white transition-all cursor-pointer shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2.5 mx-auto active:border-b-2"
+                className="bg-blue-600 hover:bg-blue-700 border-2 border-blue-700 border-b-[4px] border-b-blue-900 px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider text-white transition-all cursor-pointer shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2.5 mx-auto active:translate-y-0.5"
               >
                 <Brain className="w-5 h-5 text-blue-200" />
                 <span>Analyze My Content →</span>
@@ -558,7 +558,7 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
 
                 {/* Score Number Display */}
                 <div className="relative my-2 flex items-baseline justify-center gap-1">
-                  <span className="text-6xl sm:text-7xl font-black tracking-tight text-white">
+                  <span className="text-6xl sm:text-7xl font-display font-bold tracking-tight text-white">
                     {report.overallScore}
                   </span>
                   <span className="text-xl sm:text-2xl font-bold text-slate-400">/100</span>

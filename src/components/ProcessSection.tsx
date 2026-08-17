@@ -97,10 +97,10 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ onOpenBooking, o
 
             <div className="mt-6">
               <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={onOpenFlagship}
-                className="btn bg-[#3B82F6] hover:bg-[#4B8CF7] text-white font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-lg shadow-[#3B82F6]/20 inline-flex items-center gap-2 cursor-pointer"
+                className="btn bg-[#3B82F6] hover:bg-[#4B8CF7] text-white font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-lg shadow-[#3B82F6]/20 inline-flex items-center gap-2 cursor-pointer active:translate-y-0.5"
                 id="process-apply-now-btn"
               >
                 Apply for Creator's Upgrade Program™ <ArrowRight className="w-4 h-4" />

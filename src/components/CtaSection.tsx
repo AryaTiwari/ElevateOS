@@ -32,10 +32,10 @@ export const CtaSection: React.FC<CtaSectionProps> = memo(({ onOpenBooking }) =>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
             <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.97 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.99 }}
               onClick={onOpenBooking}
-              className="w-full sm:w-auto btn bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto btn bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer active:translate-y-0.5"
               id="cta-start-conversation-btn"
             >
               <Rocket className="w-4 h-4" /> Book a Free Strategy Session

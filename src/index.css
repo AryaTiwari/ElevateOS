@@ -1,4 +1,10 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap');
+
+@theme {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
 
 @layer base {
   html {
@@ -7,47 +13,80 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     touch-action: manipulation;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   * {
-    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: inherit;
     -webkit-tap-highlight-color: transparent;
   }
 
   body {
-    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 400;
     overflow-x: hidden;
     background-color: #f8fafc;
     -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
+    touch-action: pan-y;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  h1 {
+    font-weight: 700;
+  }
+
+  h2 {
+    font-weight: 700;
+  }
+
+  h3 {
+    font-weight: 600;
+  }
+
+  h4 {
+    font-weight: 600;
+  }
+
+  p, span, label, input, textarea, select, a {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  button, [role="button"] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 600;
+  }
+
+  section, main, div, header, footer {
+    touch-action: pan-y;
   }
 
   button, a, input, select, textarea, [role="button"] {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
   }
 }
 
-/* 120Hz/144Hz+ Ultra-FPS Hardware Compositing & GPU Acceleration */
+/* 120Hz/144Hz+ High Performance Hardware Compositing */
 @layer utilities {
   .gpu-layer {
-    will-change: transform, opacity;
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
-    perspective: 1000px;
   }
 
   .gpu-transform {
     transform: translate3d(0, 0, 0);
-    will-change: transform;
     backface-visibility: hidden;
   }
 
   .smooth-backdrop {
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
     transform: translate3d(0, 0, 0);
-    will-change: backdrop-filter, transform;
   }
 
   .optimize-render {
@@ -56,7 +95,7 @@
   }
 }
 
-/* High-rate silky-smooth GPU accelerated keyframe animations */
+/* Silky-smooth GPU accelerated keyframe animations */
 @keyframes smoothShimmer {
   0% {
     transform: translate3d(-100%, 0, 0);
@@ -82,56 +121,20 @@
     transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate3d(0, -8px, 0);
+    transform: translate3d(0, -6px, 0);
   }
 }
 
-@keyframes orbFloat1 {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  33% { transform: translate3d(25px, -20px, 0) scale(1.04); }
-  66% { transform: translate3d(-15px, 25px, 0) scale(0.96); }
-}
-
-@keyframes orbFloat2 {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  33% { transform: translate3d(-25px, 20px, 0) scale(0.96); }
-  66% { transform: translate3d(20px, -25px, 0) scale(1.05); }
-}
-
-@keyframes barEq {
-  0%, 100% { transform: scaleY(0.25); }
-  50% { transform: scaleY(1); }
-}
-
 .animate-smooth-shimmer {
-  animation: smoothShimmer 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
-  will-change: transform;
+  animation: smoothShimmer 2.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
 .animate-smooth-pulse {
   animation: smoothPulse 5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
-  will-change: transform, opacity;
 }
 
 .animate-smooth-float {
   animation: smoothFloat 4s cubic-bezier(0.33, 1, 0.68, 1) infinite;
-  will-change: transform;
-}
-
-.animate-orb-1 {
-  animation: orbFloat1 16s ease-in-out infinite;
-  will-change: transform;
-}
-
-.animate-orb-2 {
-  animation: orbFloat2 20s ease-in-out infinite;
-  will-change: transform;
-}
-
-.animate-bar-eq {
-  animation: barEq 1.2s ease-in-out infinite alternate;
-  transform-origin: bottom;
-  will-change: transform;
 }
 
 

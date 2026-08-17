@@ -55,17 +55,17 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
-          className={`h-[72px] border-b flex items-center justify-between px-4 md:px-6 transition-all duration-300 relative gpu-layer ${
+          className={`h-[72px] border-b flex items-center justify-between px-4 md:px-6 transition-all duration-200 relative ${
             isScrolled
-              ? 'bg-white/95 rounded-b-2xl border-slate-200 shadow-lg shadow-slate-200/40 backdrop-blur-md'
-              : 'bg-white/90 border-slate-200/80 backdrop-blur-sm'
+              ? 'bg-white rounded-b-2xl border-slate-200 shadow-md shadow-slate-200/50'
+              : 'bg-white/98 border-slate-200/80 shadow-xs'
           }`}
         >
           {/* LOGO */}
           <div className="flex items-center">
             <button
               onClick={() => handleNavClick('home')}
-              className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 flex items-center gap-1 cursor-pointer hover:opacity-90 transition-opacity"
+              className="text-xl sm:text-2xl font-display font-bold tracking-tight text-slate-900 flex items-center gap-1 cursor-pointer hover:opacity-90 transition-opacity"
             >
               Elevate <span className="text-blue-600">OS</span>
             </button>
@@ -75,8 +75,8 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
           <div className="hidden md:flex items-center gap-6">
             <button
               onClick={() => handleNavClick('home')}
-              className={`text-xs font-extrabold uppercase tracking-wider transition-colors cursor-pointer ${
-                currentRoute === 'home' ? 'text-blue-600 font-black' : 'text-slate-700 hover:text-blue-600'
+              className={`text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                currentRoute === 'home' ? 'text-blue-600 font-bold' : 'text-slate-700 hover:text-blue-600'
               }`}
             >
               Home
@@ -86,9 +86,9 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setToolsDropdownOpen(!toolsDropdownOpen)}
-                className={`text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer py-2 ${
+                className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer py-2 ${
                   ['elevate-ai', 'blueprint', 'revenue'].includes(currentRoute)
-                    ? 'text-blue-600 font-black'
+                    ? 'text-blue-600 font-bold'
                     : 'text-slate-700 hover:text-blue-600'
                 }`}
               >
@@ -162,8 +162,8 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
 
             <button
               onClick={() => handleNavClick('services')}
-              className={`text-xs font-extrabold uppercase tracking-wider transition-colors cursor-pointer ${
-                currentRoute === 'services' ? 'text-blue-600 font-black' : 'text-slate-700 hover:text-blue-600'
+              className={`text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                currentRoute === 'services' ? 'text-blue-600 font-bold' : 'text-slate-700 hover:text-blue-600'
               }`}
             >
               Services
@@ -171,8 +171,8 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
 
             <button
               onClick={() => handleNavClick('about')}
-              className={`text-xs font-extrabold uppercase tracking-wider transition-colors cursor-pointer ${
-                currentRoute === 'about' ? 'text-blue-600 font-black' : 'text-slate-700 hover:text-blue-600'
+              className={`text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                currentRoute === 'about' ? 'text-blue-600 font-bold' : 'text-slate-700 hover:text-blue-600'
               }`}
             >
               About

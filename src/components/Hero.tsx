@@ -161,10 +161,10 @@ export const Hero: React.FC<HeroProps> = memo(({ onOpenBooking, onOpenFlagship, 
           >
             {/* BUTTON 1: FREE STRATEGY SESSION (3D SOLID GREEN) */}
             <motion.button
-              whileHover={{ scale: 1.03, y: -2 }}
-              whileTap={{ scale: 0.97, y: 2 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.99 }}
               onClick={onOpenBooking}
-              className="w-full sm:w-auto px-7 py-4 font-black text-xs uppercase tracking-wider text-white bg-emerald-500 hover:bg-emerald-600 border-2 border-emerald-600 border-b-[5px] border-b-emerald-700 rounded-2xl transition-all shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-2.5 cursor-pointer relative overflow-hidden group active:border-b-2"
+              className="w-full sm:w-auto px-7 py-4 font-black text-xs uppercase tracking-wider text-white bg-emerald-500 hover:bg-emerald-600 border-2 border-emerald-600 border-b-[4px] border-b-emerald-700 rounded-2xl transition-all shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2.5 cursor-pointer relative overflow-hidden group active:translate-y-0.5"
               id="hero-free-session-btn"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
@@ -175,10 +175,10 @@ export const Hero: React.FC<HeroProps> = memo(({ onOpenBooking, onOpenFlagship, 
 
             {/* BUTTON 2: FREE CONTENT DIAGNOSIS (3D SOLID BLUE) */}
             <motion.button
-              whileHover={{ scale: 1.03, y: -2 }}
-              whileTap={{ scale: 0.97, y: 2 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.99 }}
               onClick={onOpenAudit}
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 border-2 border-blue-700 border-b-[5px] border-b-blue-800 px-7 py-4 rounded-2xl font-black text-xs uppercase tracking-wider text-white transition-all flex items-center justify-center gap-3.5 cursor-pointer shadow-xl shadow-blue-500/30 group relative overflow-hidden active:border-b-2"
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 border-2 border-blue-700 border-b-[4px] border-b-blue-800 px-7 py-4 rounded-2xl font-black text-xs uppercase tracking-wider text-white transition-all flex items-center justify-center gap-3.5 cursor-pointer shadow-lg shadow-blue-500/25 group relative overflow-hidden active:translate-y-0.5"
               id="hero-content-diagnosis-btn"
             >
               {/* Graphical visualizer component with cool graphics */}

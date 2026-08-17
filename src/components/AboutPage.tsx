@@ -127,7 +127,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
               "Content creators are not just entertainers — they are the <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-orange-300 to-amber-200">future economy</span> of India."
             </h3>
 
-            <div className="p-6 sm:p-8 bg-slate-900/90 border border-indigo-500/30 rounded-3xl space-y-4 backdrop-blur-md relative shadow-xl">
+            <div className="p-6 sm:p-8 bg-slate-900/95 border border-indigo-500/30 rounded-3xl space-y-4 relative shadow-xl">
               <span className="text-6xl text-indigo-400/20 font-serif absolute top-2 right-4 select-none">“</span>
               <p className="text-sm sm:text-base text-slate-200 font-medium leading-relaxed italic relative z-10">
                 "Content creators are shaping how an entire generation thinks, learns, and buys. Every video, story, and hook shifts society. Elevate OS was built to give independent creators an elite operating system — providing the exact hook psychology, retention modeling, and monetization systems needed to build a lasting digital brand."
@@ -178,7 +178,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({
           </div>
 
           {/* Right Card Column: Core Principles */}
-          <div className="w-full lg:w-96 bg-slate-900/90 border border-slate-700/80 rounded-3xl p-6 sm:p-8 space-y-6 backdrop-blur-md shrink-0 flex flex-col justify-between shadow-xl">
+          <div className="w-full lg:w-96 bg-slate-900/95 border border-slate-700/80 rounded-3xl p-6 sm:p-8 space-y-6 shrink-0 flex flex-col justify-between shadow-xl">
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                 <span className="text-xs font-black text-orange-400 uppercase tracking-widest flex items-center gap-1.5">

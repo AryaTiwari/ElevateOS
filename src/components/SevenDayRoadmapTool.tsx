@@ -327,20 +327,20 @@ export const SevenDayRoadmapTool: React.FC<SevenDayRoadmapToolProps> = memo(({ o
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-black tracking-wider uppercase text-indigo-600 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-md">
+                      <span className="text-[11px] font-display font-bold tracking-wider uppercase text-indigo-600 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-md">
                         DAY {d.day}
                       </span>
                     </div>
 
-                    <h4 className="text-sm font-black text-slate-900 leading-tight">
+                    <h4 className="text-sm font-display font-semibold text-slate-900 leading-tight">
                       {d.focus}
                     </h4>
 
                     <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+                      <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-slate-400 block">
                         Action Step
                       </span>
-                      <p className="text-xs font-bold text-slate-800 leading-snug">
+                      <p className="text-xs font-sans font-medium text-slate-800 leading-snug">
                         {d.action}
                       </p>
                     </div>

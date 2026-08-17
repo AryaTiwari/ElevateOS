@@ -7,92 +7,114 @@ export function generateRuleBased7DayRoadmap(input: SevenDayRoadmapInput): Seven
   const goal = input.mainGoal || 'Increase Views';
   const bottleneck = input.currentBottleneck?.trim() || 'Low reach and viewer drop-off';
 
-  // Customize intro based on Goal & Bottleneck
-  let intro = `Based on your goal of ${goal.toLowerCase()} in ${niche} and your current challenge with "${bottleneck}", your first 7 days focus on strengthening your short-form content foundation before increasing volume.`;
+  // Niche-specific insights
+  const nicheActions: Record<string, { angle: string; hookTip: string; format: string }> = {
+    Fitness: {
+      angle: 'bust a common workout/diet myth or demonstrate a counter-intuitive form fix',
+      hookTip: 'visual side-by-side comparison ("Stop doing X if you want Y")',
+      format: '30s demonstration + immediate verbal cue'
+    },
+    Finance: {
+      angle: 'break down a hidden money mistake or non-obvious tax/savings loophole',
+      hookTip: 'bold numerical contrast ("How this 1 decision costs you $10k")',
+      format: 'talking head with fast on-screen receipts/data overlays'
+    },
+    Tech: {
+      angle: 'showcase a high-leverage workflow shortcut, tool comparison, or code optimization',
+      hookTip: 'screen capture demo + direct problem statement ("If you still do X manually...")',
+      format: 'split-screen screen recording with voiceover'
+    },
+    Gaming: {
+      angle: 'capture an absurd clutch moment, niche lore debate, or high-skill reaction',
+      hookTip: 'instant high-energy sound bite or relatable in-game scenario',
+      format: 'fast-cut gameplay with punchy captions'
+    },
+    Fashion: {
+      angle: 'solve a specific styling dilemma (e.g. proportions, color theory, capsule wardrobe)',
+      hookTip: 'outfit transition with immediate aesthetic contrast',
+      format: 'rapid outfit switch with styling rules on screen'
+    },
+    Lifestyle: {
+      angle: 'share a relatable daily habit, raw realization, or aesthetic routine',
+      hookTip: 'intimate talking-head or day-in-the-life POV hook',
+      format: 'vlog-style micro-narrative'
+    },
+    Education: {
+      angle: 'condense a complex concept into a 3-step intuitive mental model',
+      hookTip: 'contrarian question ("Why what school taught you about X is backwards")',
+      format: 'visual framework breakdown'
+    },
+    Business: {
+      angle: 'reveal the non-obvious lever behind scaling, client acquisition, or positioning',
+      hookTip: 'direct case breakdown ("The 1 change that unlocked our pipeline")',
+      format: 'direct-to-camera authority breakdown with 3 clear steps'
+    }
+  };
 
-  if (goal.includes('Brand Deals')) {
-    intro = `To help ${name} position for brand partnerships in ${niche}, this 7-day roadmap focuses on establishing authority, clean content structure, and sponsor-ready channel packaging.`;
-  } else if (goal.includes('Monetize')) {
-    intro = `Based on your goal of monetizing your ${niche} audience, this week-one roadmap focuses on problem-focused messaging and building initial buyer intent.`;
-  } else if (stage === 'Just Starting') {
-    intro = `As an emerging ${niche} creator, your first 7 days focus on finding your core content angle and establishing a repeatable short-form video workflow.`;
+  const nicheSpec = nicheActions[niche] || nicheActions.Business;
+
+  // Bottleneck-tailored diagnoses
+  const isHookProblem = /(hook|first 3|drop|drop-off|swipe|attention|boring|scroll)/i.test(bottleneck);
+  const isReachProblem = /(views|reach|algorithm|flatline|shadowban|stuck|low views|0 views|200 views)/i.test(bottleneck);
+  const isMonetizeProblem = /(monetiz|sales|client|money|dm|lead|buyer|offer|funnel)/i.test(bottleneck);
+  const isBrandDealProblem = /(brand|sponsor|deal|partner|pitch|agency)/i.test(bottleneck);
+
+  let intro = `As a ${stage.toLowerCase()} creator in ${niche}, your biggest growth multiplier is solving "${bottleneck}". This 7-day sprint removes content fluff, dials in your opening hooks, and installs a repeatable short-form retention workflow designed to achieve your goal of ${goal.toLowerCase()}.`;
+
+  if (isMonetizeProblem || goal === 'Monetize') {
+    intro = `For ${name} to turn ${niche} attention into high-intent revenue, your 7-day sprint pivots your content from generic entertainment to problem-solution authority with frictionless 1-word DM conversion triggers.`;
+  } else if (isBrandDealProblem || goal === 'Get Brand Deals' || goal === 'Build Authority') {
+    intro = `To position ${name} for high-ticket brand partnerships and authoritative authority in ${niche}, this 7-day roadmap focuses on sponsor-ready channel packaging, proof-point delivery, and high-retention showcase content.`;
+  } else if (isHookProblem) {
+    intro = `Your primary bottleneck with "${bottleneck}" happens in seconds 0 to 3. This 7-day sprint systematically overhauls your hook psychology, visual pattern interrupts, and curiosity gap execution in ${niche}.`;
   }
 
-  // Customize Day 1-7 depending on Goal
-  let days = [
+  const days = [
     {
       day: 1,
-      focus: "🎯 Find Your Core Content Angle",
-      action: `Identify the 1 specific audience pain point in ${niche} that you want to be known for solving.`,
-      shortExplanation: "Based on creator best practices, single-topic focus builds clear viewer recognition faster."
+      focus: "🎯 Bottleneck Deconstruction & Angle Reset",
+      action: `Audit your last 3 ${niche} videos to pinpoint where "${bottleneck}" occurs. Identify 1 specific audience pain point where you can ${nicheSpec.angle}.`,
+      shortExplanation: "Single-topic focus with high contrast immediately cuts through saturated feed noise."
     },
     {
       day: 2,
-      focus: "🪝 Audit & Strengthen Your Hooks",
-      action: "Rewrite the opening 3 seconds of your next video script to create an immediate curiosity gap.",
-      shortExplanation: "Publicly observable Reels patterns show 80% of retention is lost in the first 3 seconds."
+      focus: "🪝 Hook Psychology & Opening 3 Seconds",
+      action: `Draft 3 contrasting opening lines for your next video: 1 curiosity-driven, 1 contrarian, and 1 relatable using a ${nicheSpec.hookTip}.`,
+      shortExplanation: "Testing multiple hook angles on one premise prevents viewer drop-off in the first 3 seconds."
     },
     {
       day: 3,
-      focus: "🎥 Script & Film One Value Reel",
-      action: `Record a 30-45 second Reel addressing your bottleneck: "${bottleneck}".`,
-      shortExplanation: "Testing problem-driven content gives you clear feedback on audience resonance."
+      focus: "🎥 Lean Scripting & Payoff Delivery",
+      action: `Record a 30-45s Reel in ${niche} with zero introductory fluff—deliver the primary promise or answer before second 12.`,
+      shortExplanation: "Front-loading high-value payoffs trains the audience and platform that your content respects watch time."
     },
     {
       day: 4,
-      focus: "📊 Review Viewer Response & Pacing",
-      action: "Check where viewers engage most or drop off, and note what sparked comments or saves.",
-      shortExplanation: "Observing retention signals helps refine your video structure."
+      focus: "📊 24-Hour Retention & Drop-Off Diagnostic",
+      action: `Analyze your Day 3 video's retention curve: identify the exact second where retention dipped and note which phrases triggered comment replies.`,
+      shortExplanation: "Reading viewer drop-off points objectively exposes pacing drag and unnecessary filler words."
     },
     {
       day: 5,
-      focus: "🔄 Double Down on Proven Structure",
-      action: "Re-film or adapt your strongest performing concept using a new opening hook line.",
-      shortExplanation: "Top creators scale by iterating on proven content frameworks rather than starting from scratch."
+      focus: "🔄 Pattern Interrupt & Framework Iteration",
+      action: `Re-frame your highest-performing point from Day 3 using a new visual pattern interrupt (e.g. quick cut, screen pop, or reverse angle).`,
+      shortExplanation: "Top creators scale by iterating on proven psychological hooks rather than guessing new topics daily."
     },
     {
       day: 6,
-      focus: "🤝 Direct Community Connection",
-      action: "Publish a story or Reel directly answering a common question from your target audience.",
-      shortExplanation: "Direct response content converts casual viewers into loyal profile followers."
+      focus: "⚡ High-Intent Conversion & Comment Signal",
+      action: goal.includes('Monetize') || goal.includes('Brand')
+        ? `Deploy a frictionless 1-word keyword comment trigger (e.g. 'Comment BLUEPRINT below') to convert viewers into private DM conversations.`
+        : `Include an open-ended debate question in your closing 3 seconds to spark comment engagement signals.`,
+      shortExplanation: "Active comment triggers signal high viewer investment and boost organic platform distribution."
     },
     {
       day: 7,
-      focus: "🚀 Weekly Review & Next Direction",
-      action: "Evaluate your 7-day progress and outline your top 3 content themes for the coming week.",
-      shortExplanation: "Reflecting weekly ensures continuous strategic alignment with your goal."
+      focus: "🚀 Weekly Sprint Review & Execution System",
+      action: `Evaluate your 7-day sprint metrics, retire formats that dragged, and lock in your top 3 proven content pillars for next week.`,
+      shortExplanation: "Weekly iteration cycles compound creator momentum and guarantee systematic channel growth."
     }
   ];
-
-  if (goal.includes('Brand Deals') || goal.includes('Build Authority')) {
-    days[0] = {
-      day: 1,
-      focus: "💼 Channel & Bio Positioning",
-      action: `Optimize your Instagram bio and pinned posts to clearly show your niche authority in ${niche}.`,
-      shortExplanation: "Brand managers look for immediate clarity on audience quality and niche alignment."
-    };
-    days[2] = {
-      day: 3,
-      focus: "🎥 Film High-Production Showcase",
-      action: "Create a high-value breakdown Reel demonstrating deep expertise in your field.",
-      shortExplanation: "Portfolio-grade content proves your capability to prospective sponsors."
-    };
-  }
-
-  if (goal.includes('Monetize')) {
-    days[1] = {
-      day: 2,
-      focus: "💡 Problem-Solution Framing",
-      action: "Frame your Reel topic around a high-friction problem your target audience pays to solve.",
-      shortExplanation: "Monetization starts by building trust around valuable, high-stakes solutions."
-    };
-    days[5] = {
-      day: 6,
-      focus: "📩 Intent-Driven Call To Action",
-      action: "Add a clear comment-keyword trigger (e.g., 'Comment PLAN') to send interested viewers more details.",
-      shortExplanation: "Frictionless DM lead funnels turn casual viewers into high-intent leads."
-    };
-  }
 
   return {
     creatorName: name,
