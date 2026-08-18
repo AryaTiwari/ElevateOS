@@ -12,6 +12,18 @@ export const ServicesSection: React.FC<ServicesSectionProps> = memo(({ onSelectS
   const upgradeProgram = SERVICES.find(s => s.id === 'upgrade-program') || SERVICES[0];
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Lock background scroll when detail modal is open
+  React.useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isModalOpen]);
+
   return (
     <section id="services" className="py-[70px] md:py-[100px] relative border-t border-slate-200 overflow-hidden">
       {/* BACKGROUND ACCENT GLOW */}

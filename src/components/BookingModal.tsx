@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BookingFormData } from '../types';
 import { CONTACT_INFO } from '../data/elevateData';
-import { X, Send, Mail, CheckCircle2, Calendar, Phone, Instagram, User, AlertCircle } from 'lucide-react';
+import { X, Send, Mail, CheckCircle2, Calendar, Phone, Instagram, User, AlertCircle, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface BookingModalProps {
@@ -24,21 +24,34 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const isValidIndianPhone = (phone: string) => {
-    const cleaned = phone.replace(/[\s\-\(\)]/g, '');
-    return /^(?:\+?91|0)?[6-9]\d{9}$/.test(cleaned);
+  // Lock background body scroll when modal is open
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  const isValidPhone = (phone: string) => {
+    const cleaned = phone.replace(/[\s\-\+\(\)]/g, '');
+    return /^\d{10,14}$/.test(cleaned);
   };
 
   const handleSendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
     if (!formData.fullName.trim() || !formData.phoneNumber.trim() || !formData.instagramId.trim() || !formData.currentProblem.trim()) {
       setErrorMessage('Please fill in all required details before proceeding!');
       return;
     }
 
-    if (!isValidIndianPhone(formData.phoneNumber)) {
-      setErrorMessage('Invalid phone number! Please enter a valid 10-digit Indian mobile number (e.g., +91 98765 43210).');
+    if (!isValidPhone(formData.phoneNumber)) {
+      setErrorMessage('Please enter a valid contact phone number with country code if applicable.');
       return;
     }
 
@@ -112,11 +125,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 sm:p-8 relative shadow-2xl my-8 text-left z-10 gpu-layer"
+            className="bg-[#101828]/95 backdrop-blur-2xl border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 relative shadow-2xl my-8 text-left z-10 gpu-layer text-white"
           >
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 cursor-pointer"
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 cursor-pointer transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -124,17 +137,17 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
             {!submitted ? (
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-1.5 text-xs font-black text-blue-600 uppercase tracking-wider">
-                    <Calendar className="w-4 h-4 text-blue-600" /> 1-ON-1 STRATEGY CALL
+                  <div className="flex items-center gap-1.5 text-xs font-black text-pink-400 uppercase tracking-wider">
+                    <Calendar className="w-4 h-4 text-pink-400" /> 1-ON-1 STRATEGY CALL
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-0.5 rounded-full">
-                    100% Free • 0 Obligation
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+                    Complimentary Session
                   </span>
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-1">
+                <h3 className="text-2xl font-black text-white tracking-tight mb-1">
                   Book Your Free Strategy Session 🚀
                 </h3>
-                <p className="text-slate-600 text-xs sm:text-sm mb-5 leading-relaxed font-medium">
+                <p className="text-slate-300 text-xs sm:text-sm mb-5 leading-relaxed font-medium">
                   Fill in your details below for a complimentary 1-on-1 strategy call with Arya Tiwari & the Elevate OS team. We'll analyze your channel, hooks, and growth bottlenecks.
                 </p>
 
@@ -143,17 +156,17 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
                     <motion.div
                       initial={{ opacity: 0, y: -6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 font-bold text-xs flex items-center gap-2 shadow-sm"
+                      className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-300 font-bold text-xs flex items-center gap-2 shadow-sm"
                     >
-                      <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                      <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
                       <span>{errorMessage}</span>
                     </motion.div>
                   )}
 
                   {/* Name Input */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-blue-600" /> Full Name *
+                    <label className="block text-xs font-bold text-slate-200 mb-1.5 flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 text-pink-400" /> Full Name *
                     </label>
                     <input
                       type="text"
@@ -164,18 +177,15 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
                         setFormData({ ...formData, fullName: e.target.value });
                       }}
                       placeholder="e.g. Alex Rivera"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-500 font-medium placeholder:text-slate-400 transition-colors"
+                      className="w-full bg-[#0C111D] border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:bg-[#0C111D] focus:outline-none focus:border-pink-500 font-medium placeholder:text-slate-500 transition-colors"
                     />
                   </div>
 
                   {/* Phone Number Input */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-200 mb-1.5 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
-                        <Phone className="w-3.5 h-3.5 text-blue-600" /> Phone / WhatsApp (Indian Format +91) *
-                      </span>
-                      <span className="text-[10px] text-emerald-800 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                        🇮🇳 +91 Format
+                        <Phone className="w-3.5 h-3.5 text-pink-400" /> Phone / WhatsApp Number *
                       </span>
                     </label>
                     <input
@@ -186,15 +196,15 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
                         setErrorMessage(null);
                         setFormData({ ...formData, phoneNumber: e.target.value });
                       }}
-                      placeholder="+91 98765 43210"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-500 font-medium placeholder:text-slate-400 transition-colors"
+                      placeholder="e.g. +91 98765 43210"
+                      className="w-full bg-[#0C111D] border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:bg-[#0C111D] focus:outline-none focus:border-pink-500 font-medium placeholder:text-slate-500 transition-colors"
                     />
                   </div>
 
                   {/* Instagram ID Input */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
-                      <Instagram className="w-3.5 h-3.5 text-blue-600" /> Instagram ID / Handle *
+                    <label className="block text-xs font-bold text-slate-200 mb-1.5 flex items-center gap-1.5">
+                      <Instagram className="w-3.5 h-3.5 text-pink-400" /> Instagram ID / Handle *
                     </label>
                     <input
                       type="text"
@@ -205,14 +215,14 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
                         setFormData({ ...formData, instagramId: e.target.value });
                       }}
                       placeholder="@your_instagram_handle"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-500 font-medium placeholder:text-slate-400 transition-colors"
+                      className="w-full bg-[#0C111D] border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:bg-[#0C111D] focus:outline-none focus:border-pink-500 font-medium placeholder:text-slate-500 transition-colors"
                     />
                   </div>
 
                   {/* Current Problem Input */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
-                      <AlertCircle className="w-3.5 h-3.5 text-blue-600" /> What is your current main problem / bottleneck? *
+                    <label className="block text-xs font-bold text-slate-200 mb-1.5 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 text-pink-400" /> What is your current main problem / bottleneck? *
                     </label>
                     <textarea
                       rows={3}
@@ -223,7 +233,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
                         setFormData({ ...formData, currentProblem: e.target.value });
                       }}
                       placeholder="e.g. Stuck at 15k followers, struggle converting views into sales, or low engagement on reels..."
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-blue-500 font-medium placeholder:text-slate-400 transition-colors resize-none"
+                      className="w-full bg-[#0C111D] border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:bg-[#0C111D] focus:outline-none focus:border-pink-500 font-medium placeholder:text-slate-500 transition-colors resize-none"
                     />
                   </div>
 
@@ -233,11 +243,14 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
                       whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-blue-500/25"
+                      className="w-full py-3.5 bg-gradient-to-r from-pink-600 via-purple-600 to-amber-600 hover:from-pink-500 hover:via-purple-500 hover:to-amber-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-pink-950/40"
                       id="booking-submit-btn"
                     >
                       {isSubmitting ? (
-                        <>Submitting...</>
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin-smooth" />
+                          <span>Submitting...</span>
+                        </>
                       ) : (
                         <>
                           <Send className="w-4 h-4" /> Book Free Strategy Session
@@ -245,11 +258,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
                       )}
                     </motion.button>
 
-                    <div className="flex items-center justify-between pt-1 text-xs text-slate-500 font-medium">
+                    <div className="flex items-center justify-between pt-1 text-xs text-slate-400 font-medium">
                       <span>Direct Team Contact:</span>
                       <a
                         href={`mailto:${CONTACT_INFO.email}`}
-                        className="text-blue-600 hover:underline flex items-center gap-1 font-semibold"
+                        className="text-pink-400 hover:underline flex items-center gap-1 font-semibold"
                       >
                         <Mail className="w-3.5 h-3.5" /> {CONTACT_INFO.email}
                       </a>
@@ -259,22 +272,22 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
               </div>
             ) : (
               <div className="text-center py-8 space-y-4">
-                <div className="w-16 h-16 bg-blue-50 border border-blue-200 rounded-full flex items-center justify-center mx-auto text-blue-600">
+                <div className="w-16 h-16 bg-pink-500/10 border border-pink-500/30 rounded-full flex items-center justify-center mx-auto text-pink-400">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h3 className="text-2xl font-extrabold text-slate-900">Strategy Session Requested!</h3>
-                <p className="text-slate-600 text-sm max-w-sm mx-auto leading-relaxed font-medium">
+                <h3 className="text-2xl font-extrabold text-white">Strategy Session Requested!</h3>
+                <p className="text-slate-300 text-sm max-w-sm mx-auto leading-relaxed font-medium">
                   Your strategy session request has been received. We'll get back to you shortly.
                 </p>
                 {lastSubmittedData && (
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1.5 text-left text-slate-700 font-medium">
-                    <div className="pb-2 border-b border-slate-200">
-                      <span className="text-emerald-700 font-bold flex items-center gap-1">✓ Submission Details</span>
+                  <div className="p-4 bg-[#0C111D] border border-slate-800 rounded-xl text-xs space-y-1.5 text-left text-slate-300 font-medium">
+                    <div className="pb-2 border-b border-slate-800">
+                      <span className="text-emerald-400 font-bold flex items-center gap-1">✓ Submission Details</span>
                     </div>
-                    <div><strong className="text-slate-900 font-bold">Name:</strong> {lastSubmittedData.fullName}</div>
-                    <div><strong className="text-slate-900 font-bold">Phone:</strong> {lastSubmittedData.phoneNumber}</div>
-                    <div><strong className="text-slate-900 font-bold">Instagram:</strong> {lastSubmittedData.instagramId}</div>
-                    <div><strong className="text-slate-900 font-bold">Current Problem:</strong> {lastSubmittedData.currentProblem}</div>
+                    <div><strong className="text-white font-bold">Name:</strong> {lastSubmittedData.fullName}</div>
+                    <div><strong className="text-white font-bold">Phone:</strong> {lastSubmittedData.phoneNumber}</div>
+                    <div><strong className="text-white font-bold">Instagram:</strong> {lastSubmittedData.instagramId}</div>
+                    <div><strong className="text-white font-bold">Current Problem:</strong> {lastSubmittedData.currentProblem}</div>
                   </div>
                 )}
                 <button
@@ -282,7 +295,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) =
                     setSubmitted(false);
                     onClose();
                   }}
-                  className="mt-4 px-6 py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700 cursor-pointer shadow-md"
+                  className="mt-4 px-6 py-2.5 bg-gradient-to-r from-pink-600 via-purple-600 to-amber-600 hover:from-pink-500 hover:via-purple-500 hover:to-amber-500 text-white font-bold text-xs rounded-xl cursor-pointer shadow-md active:scale-95 transition-all"
                 >
                   Done
                 </button>

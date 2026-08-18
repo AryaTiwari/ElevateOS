@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap');
 
 @theme {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -14,6 +13,8 @@
     text-rendering: optimizeLegibility;
     touch-action: manipulation;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-top: 5rem;
   }
 
   * {
@@ -25,9 +26,11 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 400;
     overflow-x: hidden;
-    background-color: #f8fafc;
+    background-color: #0C111D;
+    color: #F1F5F9;
     -webkit-tap-highlight-color: transparent;
     touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
   }
 
   h1, h2, h3, h4, h5, h6, .font-display {
@@ -59,28 +62,50 @@
     font-weight: 600;
   }
 
-  section, main, div, header, footer {
+  section, main, header, footer {
     touch-action: pan-y;
   }
 
-  button, a, input, select, textarea, [role="button"] {
-    touch-action: manipulation;
+  button, a, [role="button"] {
     -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
     user-select: none;
+  }
+
+  input, select, textarea {
+    -webkit-tap-highlight-color: transparent;
+    user-select: text;
   }
 }
 
-/* 120Hz/144Hz+ High Performance Hardware Compositing */
+/* 120Hz/144Hz+ High Performance Hardware Compositing & GPU Acceleration */
 @layer utilities {
   .gpu-layer {
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
+    perspective: 1000px;
   }
 
   .gpu-transform {
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
+  }
+
+  .slippy-touch {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    touch-action: pan-y;
+  }
+  .slippy-touch:active {
+    transform: scale3d(0.985, 0.985, 1);
+    transition-duration: 0.08s;
+  }
+
+  .slippy-btn {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    touch-action: manipulation;
+  }
+  .slippy-btn:active {
+    transform: scale3d(0.97, 0.97, 1);
+    transition-duration: 0.08s;
   }
 
   .smooth-backdrop {
@@ -92,10 +117,66 @@
   .optimize-render {
     content-visibility: auto;
     contain-intrinsic-size: 1px 500px;
+    contain: layout style paint;
+  }
+
+  /* Refined, balanced brightness creator action buttons */
+  .btn-creator-primary {
+    background-image: linear-gradient(to right, #db2777, #9333ea, #d97706);
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 8px 20px -4px rgba(219, 39, 119, 0.25);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translate3d(0, 0, 0);
+  }
+  .btn-creator-primary:hover {
+    background-image: linear-gradient(to right, #ec4899, #a855f7, #f59e0b);
+    box-shadow: 0 10px 24px -4px rgba(219, 39, 119, 0.35);
+  }
+  .btn-creator-primary:active {
+    transform: scale3d(0.97, 0.97, 1);
+    transition-duration: 0.08s;
+  }
+
+  .btn-creator-secondary {
+    background-color: #121A2D;
+    color: #e2e8f0;
+    border: 1px solid rgba(236, 72, 153, 0.3);
+    font-weight: 700;
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.3);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translate3d(0, 0, 0);
+  }
+  .btn-creator-secondary:hover {
+    background-color: #18223A;
+    border-color: rgba(236, 72, 153, 0.6);
+    color: #ffffff;
+  }
+  .btn-creator-secondary:active {
+    transform: scale3d(0.97, 0.97, 1);
+    transition-duration: 0.08s;
   }
 }
 
 /* Silky-smooth GPU accelerated keyframe animations */
+@keyframes spinSmoothGpu {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinReverseGpu {
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
 @keyframes smoothShimmer {
   0% {
     transform: translate3d(-100%, 0, 0);
@@ -107,7 +188,7 @@
 
 @keyframes smoothPulse {
   0%, 100% {
-    opacity: 0.75;
+    opacity: 0.85;
     transform: scale3d(1, 1, 1);
   }
   50% {
@@ -116,25 +197,117 @@
   }
 }
 
-@keyframes smoothFloat {
+@keyframes smoothFloatA {
   0%, 100% {
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) rotate(0deg);
   }
   50% {
-    transform: translate3d(0, -6px, 0);
+    transform: translate3d(0, -12px, 0) rotate(1.5deg);
   }
+}
+
+@keyframes smoothFloatB {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(8px, -14px, 0) rotate(-2deg);
+  }
+}
+
+@keyframes smoothFloatC {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-6px, -10px, 0) scale(1.03);
+  }
+}
+
+@keyframes smoothOrbDrift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(24px, -25px, 0) scale(1.06);
+  }
+  66% {
+    transform: translate3d(-18px, 20px, 0) scale(0.95);
+  }
+}
+
+@keyframes smoothEqPulse {
+  0%, 100% {
+    transform: scaleY(0.35);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 0.95;
+  }
+}
+
+@keyframes glowPulseGpu {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale3d(1.05, 1.05, 1);
+  }
+}
+
+.animate-spin-smooth {
+  animation: spinSmoothGpu 1.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-spin-reverse {
+  animation: spinReverseGpu 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-glow-pulse {
+  animation: glowPulseGpu 3.5s ease-in-out infinite;
 }
 
 .animate-smooth-shimmer {
-  animation: smoothShimmer 2.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  animation: smoothShimmer 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
 .animate-smooth-pulse {
-  animation: smoothPulse 5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  animation: smoothPulse 4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
-.animate-smooth-float {
-  animation: smoothFloat 4s cubic-bezier(0.33, 1, 0.68, 1) infinite;
+.animate-float-a {
+  animation: smoothFloatA 8s ease-in-out infinite;
+}
+
+.animate-float-b {
+  animation: smoothFloatB 9.5s ease-in-out infinite;
+}
+
+.animate-float-c {
+  animation: smoothFloatC 8.8s ease-in-out infinite;
+}
+
+.animate-float-orb {
+  animation: smoothOrbDrift 12s ease-in-out infinite;
+}
+
+.animate-eq-pulse {
+  animation: smoothEqPulse 0.95s ease-in-out infinite;
+  transform-origin: bottom;
+  will-change: transform, opacity;
+}
+
+/* Accessibility: Support prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 

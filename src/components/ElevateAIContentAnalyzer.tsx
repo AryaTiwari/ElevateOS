@@ -143,6 +143,7 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
   }, [loading]);
 
   const handleAnalyze = async () => {
+    if (loading) return;
     if (!script.trim() && !concept.trim() && !hook.trim()) {
       setError("Please paste a script, hook, or content concept to analyze.");
       return;
@@ -206,35 +207,35 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-emerald-600 bg-emerald-50 border-emerald-200';
-    if (score >= 65) return 'text-blue-600 bg-blue-50 border-blue-200';
-    return 'text-amber-600 bg-amber-50 border-amber-200';
+    if (score >= 80) return 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30';
+    if (score >= 65) return 'text-purple-300 bg-purple-500/15 border-purple-500/30';
+    return 'text-amber-400 bg-amber-500/15 border-amber-500/30';
   };
 
   const getScoreGradient = (score: number) => {
-    if (score >= 80) return 'from-emerald-500 to-teal-600';
-    if (score >= 65) return 'from-blue-600 to-indigo-600';
-    return 'from-amber-500 to-orange-600';
+    if (score >= 80) return 'from-emerald-500 to-teal-500';
+    if (score >= 65) return 'from-pink-500 via-purple-500 to-indigo-500';
+    return 'from-amber-500 to-orange-500';
   };
 
   return (
     <div className="w-full relative gpu-layer">
       {/* SECTION CONTAINER */}
-      <div className="bg-white border-2 border-slate-200 rounded-3xl p-5 sm:p-8 md:p-10 shadow-xl shadow-slate-200/50 relative overflow-hidden">
+      <div className="bg-[#101828]/95 backdrop-blur-2xl border border-slate-800 rounded-3xl p-5 sm:p-8 md:p-10 shadow-2xl shadow-black/40 relative overflow-hidden text-slate-100">
         
         {/* TOP BRAND HEADER */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-800 mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-100/90 border border-blue-200 text-blue-700 text-xs font-black uppercase tracking-widest mb-2">
-              <Brain className="w-4 h-4 text-blue-600 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-300 text-xs font-black uppercase tracking-widest mb-2">
+              <Brain className="w-4 h-4 text-pink-400 animate-pulse" />
               <span>ELEVATE AI</span>
-              <span className="text-slate-400">•</span>
-              <span className="text-slate-600">CONTENT ANALYZER</span>
+              <span className="text-slate-600">•</span>
+              <span className="text-slate-300">CONTENT ANALYZER</span>
             </div>
-            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Analyze. Improve. <span className="text-blue-600">Elevate.</span> ⚡
+            <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Analyze. Improve. <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-amber-300 bg-clip-text text-transparent">Elevate.</span> ⚡
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1">
+            <p className="text-xs sm:text-sm text-slate-300 font-medium mt-1">
               Your AI-powered Reels content strategist. Get dynamic retention, hook, and virality analysis.
             </p>
           </div>
@@ -243,16 +244,16 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
             {history.length > 0 && (
               <button
                 onClick={() => setShowHistoryModal(!showHistoryModal)}
-                className="px-3 py-2 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all hover:bg-slate-100 cursor-pointer"
+                className="px-3 py-2 rounded-xl border border-slate-700 hover:border-pink-500/50 bg-slate-800/80 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition-all hover:bg-slate-800 cursor-pointer"
               >
-                <History className="w-3.5 h-3.5 text-blue-600" />
+                <History className="w-3.5 h-3.5 text-pink-400" />
                 <span>Recent Analyses ({history.length})</span>
               </button>
             )}
             {report && (
               <button
                 onClick={handleReset}
-                className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>New Analysis</span>
@@ -268,15 +269,15 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-8 p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3"
+              className="mb-8 p-4 bg-[#0C111D] border border-slate-800 rounded-2xl space-y-3"
             >
-              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                <span className="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
-                  <History className="w-3.5 h-3.5 text-blue-600" /> Your Saved Analysis History
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span className="text-xs font-black uppercase text-pink-300 tracking-wider flex items-center gap-1.5">
+                  <History className="w-3.5 h-3.5 text-pink-400" /> Your Saved Analysis History
                 </span>
                 <button
                   onClick={() => setShowHistoryModal(false)}
-                  className="text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
+                  className="text-xs font-bold text-slate-400 hover:text-white cursor-pointer"
                 >
                   Close
                 </button>
@@ -289,13 +290,13 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
                       setReport(item.report);
                       setShowHistoryModal(false);
                     }}
-                    className="p-3 bg-white border border-slate-200 rounded-xl hover:border-blue-400 text-left transition-all group flex items-start justify-between gap-2 cursor-pointer shadow-sm"
+                    className="p-3 bg-[#121A2D] border border-slate-800 rounded-xl hover:border-pink-500/50 text-left transition-all group flex items-start justify-between gap-2 cursor-pointer shadow-sm"
                   >
                     <div className="truncate">
-                      <p className="text-xs font-bold text-slate-800 truncate group-hover:text-blue-600 transition-colors">
+                      <p className="text-xs font-bold text-slate-200 truncate group-hover:text-pink-400 transition-colors">
                         "{item.preview}"
                       </p>
-                      <p className="text-[10px] text-slate-500 mt-1">
+                      <p className="text-[10px] text-slate-400 mt-1">
                         {new Date(item.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
@@ -315,22 +316,22 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
         {!report && !loading && (
           <div className="space-y-8">
             {/* HERO PROMPT CARD */}
-            <div className="p-6 bg-gradient-to-br from-blue-50/60 via-slate-50 to-indigo-50/40 border border-blue-100 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="p-6 bg-gradient-to-br from-[#121A2D] via-[#16122C] to-[#121A2D] border border-pink-500/20 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <div className="space-y-2 max-w-xl">
                 <div className="flex items-center gap-2">
-                  <Brain className="w-5 h-5 text-blue-600" />
-                  <h4 className="text-lg font-black text-slate-900">
+                  <Brain className="w-5 h-5 text-pink-400" />
+                  <h4 className="text-lg font-black text-white">
                     Don't guess why your Reel isn't working.
                   </h4>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
                   Paste your Reel script, video concept, or hook below. Elevate AI analyzes your 3-second retention, curiosity gap, shareability, and psychological triggers against current Reels best practices.
                 </p>
               </div>
 
               {/* QUICK EXAMPLE LOAD BUTTONS */}
               <div className="w-full md:w-auto shrink-0 space-y-2">
-                <span className="text-[11px] font-black uppercase text-slate-500 tracking-wider block">
+                <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider block">
                   ⚡ Try Example Scripts:
                 </span>
                 <div className="flex flex-wrap md:flex-col gap-1.5">
@@ -338,7 +339,7 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
                     <button
                       key={i}
                       onClick={() => handleLoadExample(ex)}
-                      className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:border-blue-400 hover:text-blue-600 rounded-lg transition-all text-left truncate max-w-[220px] cursor-pointer shadow-sm"
+                      className="px-3 py-1.5 text-xs font-bold text-slate-300 bg-[#0C111D] border border-slate-700 hover:border-pink-500/60 hover:text-pink-300 rounded-lg transition-all text-left truncate max-w-[220px] cursor-pointer shadow-sm"
                     >
                       ✨ {ex.title}
                     </button>
@@ -353,11 +354,11 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
               <div className="lg:col-span-8 space-y-4">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                      <FileText className="w-4 h-4 text-blue-600" />
-                      Paste Your Reel Script or Content Idea <span className="text-red-500">*</span>
+                    <label className="text-xs font-black uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+                      <FileText className="w-4 h-4 text-pink-400" />
+                      Paste Your Reel Script or Content Idea <span className="text-pink-400">*</span>
                     </label>
-                    <span className="text-[11px] text-slate-600 font-semibold">
+                    <span className="text-[11px] text-slate-400 font-semibold">
                       {script.split(/\s+/).filter(Boolean).length} words
                     </span>
                   </div>
@@ -366,14 +367,14 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
                     onChange={(e) => setScript(e.target.value)}
                     rows={8}
                     placeholder={`Paste your Reel script here...\n\nExample:\n"Most creators think posting every day is the secret to growing. It's not. The real reason your Reels cap at 500 views is..."`}
-                    className="w-full p-4 text-sm font-medium text-slate-800 bg-slate-50/80 border-2 border-slate-200 rounded-2xl focus:border-blue-600 focus:bg-white focus:outline-none transition-all placeholder:text-slate-400 resize-y shadow-inner"
+                    className="w-full p-4 text-sm font-medium text-slate-100 bg-[#0C111D] border border-slate-800 rounded-2xl focus:border-pink-500 focus:bg-[#0E1526] focus:outline-none transition-all placeholder:text-slate-500 resize-y shadow-inner"
                   />
                 </div>
 
                 {/* OPTIONAL CTA & HOOK INPUTS */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mb-1.5">
+                    <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block mb-1.5">
                       Opening Hook (Optional Override)
                     </label>
                     <input
@@ -381,12 +382,12 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
                       value={hook}
                       onChange={(e) => setHook(e.target.value)}
                       placeholder="e.g., Stop doing this if you want 100k views..."
-                      className="w-full px-3.5 py-2.5 text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-500 focus:bg-white focus:outline-none transition-all"
+                      className="w-full px-3.5 py-2.5 text-xs font-medium bg-[#0C111D] border border-slate-800 text-slate-100 rounded-xl focus:border-pink-500 focus:outline-none transition-all placeholder:text-slate-500"
                     />
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mb-1.5">
+                    <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider block mb-1.5">
                       Closing CTA (Optional Override)
                     </label>
                     <input
@@ -394,31 +395,31 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
                       value={cta}
                       onChange={(e) => setCta(e.target.value)}
                       placeholder="e.g., Comment 'REEL' for my free PDF!"
-                      className="w-full px-3.5 py-2.5 text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-500 focus:bg-white focus:outline-none transition-all"
+                      className="w-full px-3.5 py-2.5 text-xs font-medium bg-[#0C111D] border border-slate-800 text-slate-100 rounded-xl focus:border-pink-500 focus:outline-none transition-all placeholder:text-slate-500"
                     />
                   </div>
                 </div>
               </div>
 
               {/* METADATA SIDEBAR */}
-              <div className="lg:col-span-4 bg-slate-50/80 border border-slate-200 rounded-2xl p-5 space-y-4">
-                <div className="border-b border-slate-200 pb-2">
-                  <span className="text-xs font-black uppercase text-slate-800 tracking-wider flex items-center gap-1.5">
-                    <Target className="w-4 h-4 text-blue-600" /> Target Creator Profile
+              <div className="lg:col-span-4 bg-[#0C111D] border border-slate-800 rounded-2xl p-5 space-y-4">
+                <div className="border-b border-slate-800 pb-2">
+                  <span className="text-xs font-black uppercase text-pink-300 tracking-wider flex items-center gap-1.5">
+                    <Target className="w-4 h-4 text-pink-400" /> Target Creator Profile
                   </span>
-                  <p className="text-[11px] text-slate-600 mt-0.5">
+                  <p className="text-[11px] text-slate-400 mt-0.5">
                     Optional details to personalize your analysis criteria.
                   </p>
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-slate-700 uppercase block mb-1">
+                  <label className="text-[11px] font-bold text-slate-300 uppercase block mb-1">
                     Primary Niche
                   </label>
                   <select
                     value={niche}
                     onChange={(e) => setNiche(e.target.value)}
-                    className="w-full px-3 py-2 text-xs font-semibold bg-white border border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-xs font-semibold bg-[#121A2D] text-slate-200 border border-slate-700 rounded-xl focus:border-pink-500 focus:outline-none"
                   >
                     <option value="Business">Business & Marketing</option>
                     <option value="Finance">Finance & Investing</option>
@@ -434,13 +435,13 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-slate-700 uppercase block mb-1">
+                  <label className="text-[11px] font-bold text-slate-300 uppercase block mb-1">
                     Primary Creator Goal
                   </label>
                   <select
                     value={creatorGoal}
                     onChange={(e) => setCreatorGoal(e.target.value)}
-                    className="w-full px-3 py-2 text-xs font-semibold bg-white border border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-xs font-semibold bg-[#121A2D] text-slate-200 border border-slate-700 rounded-xl focus:border-pink-500 focus:outline-none"
                   >
                     <option value="Grow followers">Grow Followers & Reach</option>
                     <option value="Increase views">Maximize Views & Virality</option>
@@ -453,7 +454,7 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-bold text-slate-700 uppercase block mb-1">
+                  <label className="text-[11px] font-bold text-slate-300 uppercase block mb-1">
                     Target Audience (Optional)
                   </label>
                   <input
@@ -461,7 +462,7 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
                     value={targetAudience}
                     onChange={(e) => setTargetAudience(e.target.value)}
                     placeholder="e.g., Freelancers earning under ₹50k/mo"
-                    className="w-full px-3 py-2 text-xs font-medium bg-white border border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 text-xs font-medium bg-[#121A2D] text-slate-200 border border-slate-700 rounded-xl focus:border-pink-500 focus:outline-none placeholder:text-slate-500"
                   />
                 </div>
               </div>
@@ -469,9 +470,9 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
 
             {/* ERROR DISPLAY */}
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between gap-3 text-red-700 text-xs font-bold">
+              <div className="p-4 bg-red-950/40 border border-red-500/40 rounded-xl flex items-center justify-between gap-3 text-red-300 text-xs font-bold">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 shrink-0 text-red-600" />
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-red-400" />
                   <span>{error}</span>
                 </div>
                 <button
@@ -489,12 +490,12 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 onClick={handleAnalyze}
-                className="bg-blue-600 hover:bg-blue-700 border-2 border-blue-700 border-b-[4px] border-b-blue-900 px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider text-white transition-all cursor-pointer shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2.5 mx-auto active:translate-y-0.5"
+                className="bg-gradient-to-r from-pink-600 via-purple-600 to-amber-600 hover:from-pink-500 hover:via-purple-500 hover:to-amber-500 px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider text-white transition-all cursor-pointer shadow-lg shadow-pink-950/40 flex items-center justify-center gap-2.5 mx-auto active:translate-y-0.5"
               >
-                <Brain className="w-5 h-5 text-blue-200" />
+                <Brain className="w-5 h-5 text-white" />
                 <span>Analyze My Content →</span>
               </motion.button>
-              <p className="text-[11px] text-slate-600 font-semibold mt-2.5">
+              <p className="text-[11px] text-slate-400 font-semibold mt-2.5">
                 ⚡ Powered by Gemini AI • 100% Free Creator Tool
               </p>
             </div>
@@ -502,42 +503,81 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
         )}
 
         {/* ========================================================= */}
-        {/* LOADING STATE */}
+        {/* LOADING STATE (Silky 120 FPS GPU Accelerated) */}
         {/* ========================================================= */}
         {loading && (
-          <div className="py-16 text-center space-y-6 max-w-md mx-auto">
-            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
-              <Brain className="w-8 h-8 text-blue-600 animate-pulse" />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="py-12 sm:py-16 text-center space-y-8 max-w-lg mx-auto gpu-layer"
+          >
+            {/* Dual Orbital High-FPS Glow Spinner */}
+            <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
+              {/* Outer Ambient Aura */}
+              <div className="absolute inset-0 rounded-full bg-pink-500/20 blur-xl animate-glow-pulse pointer-events-none" />
+              
+              {/* Outer Track Ring */}
+              <div className="absolute inset-0 rounded-full border-[3px] border-slate-800" />
+              
+              {/* Outer High-FPS Gradient Spinning Arc */}
+              <div className="absolute inset-0 rounded-full border-[3px] border-transparent border-t-pink-500 border-r-purple-500 animate-spin-smooth" />
+              
+              {/* Inner Counter-Rotating Ring */}
+              <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-amber-400 border-l-purple-400 animate-spin-reverse opacity-75" />
+              
+              {/* Central Glowing Icon */}
+              <div className="relative z-10 w-11 h-11 rounded-full bg-[#0C111D] shadow-md border border-slate-700 flex items-center justify-center">
+                <Brain className="w-6 h-6 text-pink-400 animate-smooth-pulse" />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <h4 className="text-lg font-black text-slate-900">
-                Elevate AI is analyzing your content...
+            <div className="space-y-3">
+              <h4 className="text-xl font-display font-bold text-white tracking-tight">
+                Elevate AI is analyzing your content
               </h4>
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={loadingIndex}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-200"
-                >
-                  {LOADING_STATUSES[loadingIndex]}
-                </motion.p>
-              </AnimatePresence>
+              
+              {/* High-FPS Staggered Status Badge */}
+              <div className="min-h-[32px] flex items-center justify-center">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={loadingIndex}
+                    initial={{ opacity: 0, y: 6, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.96 }}
+                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-pink-500/15 via-purple-500/15 to-pink-500/15 border border-pink-500/30 shadow-xs"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-pink-400 animate-ping" />
+                    <span className="text-xs font-sans font-semibold text-pink-300 tracking-wide">
+                      {LOADING_STATUSES[loadingIndex]}
+                    </span>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
             </div>
 
-            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-              <motion.div
-                className="bg-blue-600 h-full rounded-full"
-                initial={{ width: "10%" }}
-                animate={{ width: "90%" }}
-                transition={{ duration: 6, ease: "linear" }}
-              />
+            {/* GPU Hardware-Accelerated Progress Track with High-FPS Shimmer Beam */}
+            <div className="space-y-2 max-w-sm mx-auto">
+              <div className="relative w-full bg-slate-800/90 h-2.5 rounded-full overflow-hidden border border-slate-700 shadow-inner">
+                {/* Expanding Base Bar via GPU Transform */}
+                <motion.div
+                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-pink-500 via-purple-600 to-amber-500 rounded-full"
+                  initial={{ width: "12%" }}
+                  animate={{ width: "94%" }}
+                  transition={{ duration: 5.5, ease: [0.25, 0.1, 0.25, 1] }}
+                >
+                  {/* High-FPS Shimmer Beam */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-smooth-shimmer" />
+                </motion.div>
+              </div>
+              <div className="flex justify-between text-[10px] font-sans font-medium text-slate-400 px-1">
+                <span>Hook & Pacing Audit</span>
+                <span>Retention & Conversion Engine</span>
+              </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* ========================================================= */}
@@ -550,9 +590,9 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
               
               {/* SCORE BADGE GAUGE */}
-              <div className="lg:col-span-5 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden border border-slate-700 shadow-2xl">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
-                <span className="text-[11px] font-black uppercase text-blue-400 tracking-widest bg-blue-950/80 border border-blue-800 px-3 py-1 rounded-full mb-4">
+              <div className="lg:col-span-5 bg-gradient-to-br from-[#0C111D] via-[#16122C] to-[#0C111D] text-white rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden border border-slate-800 shadow-2xl">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl pointer-events-none" />
+                <span className="text-[11px] font-black uppercase text-pink-400 tracking-widest bg-pink-500/15 border border-pink-500/30 px-3 py-1 rounded-full mb-4">
                   ELEVATE CONTENT SCORE
                 </span>
 
@@ -565,7 +605,7 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
                 </div>
 
                 {/* Progress bar */}
-                <div className="w-full bg-slate-700/80 h-3 rounded-full overflow-hidden my-3 p-0.5">
+                <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden my-3 p-0.5">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${report.overallScore}%` }}
@@ -580,36 +620,36 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
               </div>
 
               {/* PERSONALIZED SUMMARY & VERDICT */}
-              <div className="lg:col-span-7 bg-slate-50 border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col justify-between gap-4">
+              <div className="lg:col-span-7 bg-[#0C111D] border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-2 text-blue-600 mb-2">
+                  <div className="flex items-center gap-2 text-pink-400 mb-2">
                     <Sparkles className="w-4 h-4" />
-                    <span className="text-xs font-black uppercase tracking-wider text-slate-800">
+                    <span className="text-xs font-black uppercase tracking-wider text-pink-300">
                       ELEVATE AI ANALYSIS
                     </span>
                   </div>
-                  <h4 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
+                  <h4 className="text-base sm:text-lg font-bold text-white leading-snug">
                     "{report.summary}"
                   </h4>
                 </div>
 
-                <div className="p-4 bg-white border border-slate-200 rounded-2xl space-y-1.5">
-                  <span className="text-[11px] font-black uppercase text-blue-700 tracking-wider block">
+                <div className="p-4 bg-[#121A2D] border border-slate-800 rounded-2xl space-y-1.5">
+                  <span className="text-[11px] font-black uppercase text-pink-400 tracking-wider block">
                     AI Content Strategist's Verdict:
                   </span>
-                  <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
                     {report.verdict}
                   </p>
                 </div>
 
                 {report.biggestChange && (
-                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
-                    <Flame className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                  <div className="p-4 bg-[#24170E]/80 border border-amber-500/30 rounded-2xl flex items-start gap-3">
+                    <Flame className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                     <div>
-                      <span className="text-xs font-black text-amber-800 uppercase tracking-wider block">
+                      <span className="text-xs font-black text-amber-400 uppercase tracking-wider block">
                         THE BIGGEST CHANGE I'D MAKE:
                       </span>
-                      <p className="text-xs sm:text-sm font-bold text-slate-900 mt-0.5">
+                      <p className="text-xs sm:text-sm font-bold text-slate-200 mt-0.5">
                         {report.biggestChange}
                       </p>
                     </div>
@@ -622,11 +662,11 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                    <Layers className="w-5 h-5 text-blue-600" />
+                  <h4 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
+                    <Layers className="w-5 h-5 text-pink-400" />
                     PERFORMANCE BREAKDOWN
                   </h4>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  <p className="text-xs text-slate-400 font-medium mt-0.5">
                     10 core psychological & algorithmic dimensions analyzed for your script.
                   </p>
                 </div>
@@ -647,19 +687,19 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
                 ].map(({ key, name, icon: Icon, item }) => (
                   <div
                     key={key}
-                    className="p-4 bg-white border border-slate-200 hover:border-blue-300 rounded-2xl transition-all shadow-sm space-y-2 flex flex-col justify-between"
+                    className="p-4 bg-[#0C111D] border border-slate-800 hover:border-pink-500/50 rounded-2xl transition-all shadow-sm space-y-2 flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[11px] font-black text-slate-700 tracking-wider uppercase flex items-center gap-1.5">
-                          <Icon className="w-3.5 h-3.5 text-blue-600" />
+                        <span className="text-[11px] font-black text-slate-200 tracking-wider uppercase flex items-center gap-1.5">
+                          <Icon className="w-3.5 h-3.5 text-pink-400" />
                           {name}
                         </span>
                         {item.indicator && (
                           <span className={`text-[10px] font-black px-2 py-0.5 rounded-md border ${
-                            item.indicator.includes('Strong') ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                            item.indicator.includes('Moderate') ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                            'bg-amber-50 text-amber-700 border-amber-200'
+                            item.indicator.includes('Strong') ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' :
+                            item.indicator.includes('Moderate') ? 'bg-purple-500/15 text-purple-300 border-purple-500/30' :
+                            'bg-amber-500/15 text-amber-400 border-amber-500/30'
                           }`}>
                             {item.indicator}
                           </span>
@@ -667,19 +707,19 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
                       </div>
 
                       <div className="flex items-baseline justify-between my-1">
-                        <span className="text-xl font-black text-slate-900">
+                        <span className="text-xl font-black text-white">
                           {item.score}<span className="text-xs font-bold text-slate-400">/10</span>
                         </span>
                       </div>
 
-                      <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                      <p className="text-xs text-slate-300 font-medium leading-relaxed">
                         {item.explanation}
                       </p>
                     </div>
 
-                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-2">
+                    <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-2">
                       <div
-                        className={`h-full rounded-full ${item.score >= 8 ? 'bg-emerald-500' : item.score >= 6.5 ? 'bg-blue-600' : 'bg-amber-500'}`}
+                        className={`h-full rounded-full ${item.score >= 8 ? 'bg-emerald-500' : item.score >= 6.5 ? 'bg-pink-500' : 'bg-amber-500'}`}
                         style={{ width: `${item.score * 10}%` }}
                       />
                     </div>
@@ -691,16 +731,16 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
             {/* 3. STRENGTHS & WEAKNESSES GRID */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* STRENGTHS */}
-              <div className="p-6 bg-emerald-50/50 border border-emerald-200 rounded-3xl space-y-3">
-                <div className="flex items-center gap-2 pb-2 border-b border-emerald-200">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                  <h4 className="text-sm font-black uppercase tracking-wider text-emerald-900">
+              <div className="p-6 bg-[#0E1F1A]/80 border border-emerald-500/30 rounded-3xl space-y-3">
+                <div className="flex items-center gap-2 pb-2 border-b border-emerald-500/30">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  <h4 className="text-sm font-black uppercase tracking-wider text-emerald-300">
                     WHAT YOU'RE DOING RIGHT
                   </h4>
                 </div>
                 <div className="space-y-2">
                   {report.strengths.map((st, idx) => (
-                    <div key={idx} className="p-3 bg-white border border-emerald-100 rounded-xl text-xs font-bold text-slate-800 flex items-start gap-2 shadow-sm">
+                    <div key={idx} className="p-3 bg-[#0C111D] border border-emerald-500/20 rounded-xl text-xs font-bold text-slate-200 flex items-start gap-2 shadow-sm">
                       <span className="shrink-0">{st.startsWith('🔥') ? '' : '🔥'}</span>
                       <span>{st}</span>
                     </div>
@@ -709,16 +749,16 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
               </div>
 
               {/* WEAKNESSES */}
-              <div className="p-6 bg-amber-50/50 border border-amber-200 rounded-3xl space-y-3">
-                <div className="flex items-center gap-2 pb-2 border-b border-amber-200">
-                  <AlertTriangle className="w-5 h-5 text-amber-600" />
-                  <h4 className="text-sm font-black uppercase tracking-wider text-amber-900">
+              <div className="p-6 bg-[#24170E]/80 border border-amber-500/30 rounded-3xl space-y-3">
+                <div className="flex items-center gap-2 pb-2 border-b border-amber-500/30">
+                  <AlertTriangle className="w-5 h-5 text-amber-400" />
+                  <h4 className="text-sm font-black uppercase tracking-wider text-amber-300">
                     WHERE YOU'RE LOSING POTENTIAL
                   </h4>
                 </div>
                 <div className="space-y-2">
                   {report.weaknesses.map((wk, idx) => (
-                    <div key={idx} className="p-3 bg-white border border-amber-100 rounded-xl text-xs font-bold text-slate-800 flex items-start gap-2 shadow-sm">
+                    <div key={idx} className="p-3 bg-[#0C111D] border border-amber-500/20 rounded-xl text-xs font-bold text-slate-200 flex items-start gap-2 shadow-sm">
                       <span className="shrink-0">{wk.startsWith('⚠️') ? '' : '⚠️'}</span>
                       <span>{wk}</span>
                     </div>
@@ -729,35 +769,35 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
 
             {/* 4. HOOK IMPROVEMENTS */}
             {report.hookSuggestions && report.hookSuggestions.length > 0 && (
-              <div className="p-6 bg-blue-50/60 border border-blue-200 rounded-3xl space-y-4">
-                <div className="flex items-center justify-between pb-2 border-b border-blue-200">
+              <div className="p-6 bg-[#121A2D] border border-pink-500/30 rounded-3xl space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
                   <div className="flex items-center gap-2">
-                    <Wand2 className="w-5 h-5 text-blue-600" />
-                    <h4 className="text-sm font-black uppercase tracking-wider text-blue-900">
+                    <Wand2 className="w-5 h-5 text-pink-400" />
+                    <h4 className="text-sm font-black uppercase tracking-wider text-pink-300">
                       YOUR STRONGER HOOK OPTIONS
                     </h4>
                   </div>
-                  <span className="text-[11px] text-blue-700 font-bold">
+                  <span className="text-[11px] text-purple-300 font-bold">
                     3 Psychological Angles
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {report.hookSuggestions.map((hs, idx) => (
-                    <div key={idx} className="p-4 bg-white border border-blue-100 rounded-2xl space-y-2 flex flex-col justify-between shadow-sm">
+                    <div key={idx} className="p-4 bg-[#0C111D] border border-slate-800 rounded-2xl space-y-2 flex flex-col justify-between shadow-sm">
                       <div>
-                        <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-blue-100 text-blue-800 rounded-md inline-block mb-1.5">
+                        <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-pink-500/20 text-pink-300 rounded-md inline-block mb-1.5 border border-pink-500/30">
                           {hs.angle} Angle
                         </span>
-                        <p className="text-xs font-bold text-slate-900 leading-snug">
+                        <p className="text-xs font-bold text-white leading-snug">
                           "{hs.hook}"
                         </p>
                       </div>
                       <button
                         onClick={() => handleCopyText(hs.hook, `hook-${idx}`)}
-                        className="mt-3 text-[11px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
+                        className="mt-3 text-[11px] font-bold text-pink-400 hover:text-pink-300 flex items-center gap-1 cursor-pointer"
                       >
-                        {copiedKey === `hook-${idx}` ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedKey === `hook-${idx}` ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                         <span>{copiedKey === `hook-${idx}` ? 'Copied!' : 'Copy Hook'}</span>
                       </button>
                     </div>
@@ -769,26 +809,26 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
             {/* 5. RETENTION FIX & TREND FIT */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* RETENTION FIX */}
-              <div className="p-6 bg-slate-50 border border-slate-200 rounded-3xl space-y-3">
-                <span className="text-xs font-black uppercase text-slate-800 tracking-wider flex items-center gap-1.5">
-                  <TrendingUp className="w-4 h-4 text-blue-600" /> RETENTION FIX & PACING
+              <div className="p-6 bg-[#0C111D] border border-slate-800 rounded-3xl space-y-3">
+                <span className="text-xs font-black uppercase text-pink-300 tracking-wider flex items-center gap-1.5">
+                  <TrendingUp className="w-4 h-4 text-pink-400" /> RETENTION FIX & PACING
                 </span>
-                <p className="text-xs sm:text-sm font-medium text-slate-700 leading-relaxed bg-white p-4 rounded-2xl border border-slate-200">
+                <p className="text-xs sm:text-sm font-medium text-slate-300 leading-relaxed bg-[#121A2D] p-4 rounded-2xl border border-slate-800">
                   {report.retentionFix}
                 </p>
               </div>
 
               {/* TREND FIT */}
-              <div className="p-6 bg-slate-50 border border-slate-200 rounded-3xl space-y-3">
+              <div className="p-6 bg-[#0C111D] border border-slate-800 rounded-3xl space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black uppercase text-slate-800 tracking-wider flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600" /> TREND FIT & FORMAT
+                  <span className="text-xs font-black uppercase text-emerald-300 tracking-wider flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" /> TREND FIT & FORMAT
                   </span>
-                  <span className="text-xs font-black px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-lg">
+                  <span className="text-xs font-black px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg">
                     {report.trendAnalysis.score}/10
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm font-medium text-slate-700 leading-relaxed bg-white p-4 rounded-2xl border border-slate-200">
+                <p className="text-xs sm:text-sm font-medium text-slate-300 leading-relaxed bg-[#121A2D] p-4 rounded-2xl border border-slate-800">
                   {report.trendAnalysis.explanation}
                 </p>
               </div>
@@ -796,10 +836,10 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
 
             {/* 6. CONTENT REWRITE / IMPROVED VERSION */}
             {report.improvedVersion && (
-              <div className="p-6 bg-slate-900 text-white rounded-3xl space-y-4 shadow-xl">
+              <div className="p-6 bg-[#0C111D] text-white border border-slate-800 rounded-3xl space-y-4 shadow-xl">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                   <div className="flex items-center gap-2">
-                    <Wand2 className="w-5 h-5 text-blue-400" />
+                    <Wand2 className="w-5 h-5 text-pink-400" />
                     <div>
                       <h4 className="text-sm font-black uppercase tracking-wider text-white">
                         ELEVATE AI IMPROVED REWRITE
@@ -812,7 +852,7 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
 
                   <button
                     onClick={() => setShowImproved(!showImproved)}
-                    className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all cursor-pointer shadow-md"
+                    className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white text-xs font-bold transition-all cursor-pointer shadow-md"
                   >
                     {showImproved ? 'Hide Improved Script' : '✨ View Improved Script'}
                   </button>
@@ -824,14 +864,14 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
                     animate={{ opacity: 1, height: 'auto' }}
                     className="space-y-3"
                   >
-                    <div className="p-4 bg-slate-800/90 border border-slate-700 rounded-2xl text-xs sm:text-sm font-mono leading-relaxed text-slate-200 whitespace-pre-wrap">
+                    <div className="p-4 bg-[#121A2D] border border-slate-800 rounded-2xl text-xs sm:text-sm font-mono leading-relaxed text-slate-200 whitespace-pre-wrap">
                       {report.improvedVersion}
                     </div>
 
                     <div className="flex justify-end">
                       <button
                         onClick={() => handleCopyText(report.improvedVersion, 'improved-script')}
-                        className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold text-white flex items-center gap-2 transition-all cursor-pointer"
+                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold text-white flex items-center gap-2 transition-all cursor-pointer border border-slate-700"
                       >
                         {copiedKey === 'improved-script' ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                         <span>{copiedKey === 'improved-script' ? 'Copied Improved Script!' : 'Copy Improved Script'}</span>
@@ -843,15 +883,15 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
             )}
 
             {/* 7. BOTTOM CTA BRIDGE */}
-            <div className="p-6 sm:p-8 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+            <div className="p-6 sm:p-8 bg-gradient-to-r from-[#0C111D] via-[#1E1B4B] to-[#18112C] border border-pink-500/30 text-white rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
               <div className="space-y-1.5 text-center md:text-left">
-                <span className="text-[11px] font-black uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full text-white inline-block">
+                <span className="text-[11px] font-black uppercase tracking-widest bg-pink-500/20 border border-pink-500/30 px-3 py-1 rounded-full text-pink-200 inline-block">
                   NEXT LEVEL CREATOR SYSTEMS
                 </span>
                 <h4 className="text-xl sm:text-2xl font-black tracking-tight">
                   Want us to build your complete content engine?
                 </h4>
-                <p className="text-xs sm:text-sm text-blue-100 max-w-xl font-medium">
+                <p className="text-xs sm:text-sm text-slate-300 max-w-xl font-medium">
                   Book a free strategy session with Arya Tiwari to unlock custom positioning, content scripts, and high-margin monetization.
                 </p>
               </div>
@@ -859,14 +899,14 @@ export const ElevateAIContentAnalyzer: React.FC<ElevateAIContentAnalyzerProps> =
               <div className="flex flex-col sm:flex-row gap-3 shrink-0">
                 <button
                   onClick={onOpenBooking}
-                  className="px-6 py-3.5 bg-white hover:bg-slate-100 text-slate-900 rounded-2xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg flex items-center gap-2 justify-center"
+                  className="px-6 py-3.5 bg-gradient-to-r from-pink-600 via-purple-600 to-amber-600 hover:from-pink-500 hover:via-purple-500 hover:to-amber-500 text-white rounded-2xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-pink-950/30 flex items-center gap-2 justify-center active:scale-[0.98]"
                 >
-                  <Calendar className="w-4 h-4 text-blue-600" />
+                  <Calendar className="w-4 h-4 text-white" />
                   <span>Book Free Strategy Session</span>
                 </button>
                 <button
                   onClick={onOpenFlagship}
-                  className="px-5 py-3.5 bg-blue-700 hover:bg-blue-800 text-white border border-blue-500 rounded-2xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 justify-center"
+                  className="px-5 py-3.5 bg-[#121A2D] hover:bg-[#18233D] text-slate-200 border border-slate-700 hover:border-pink-500/50 rounded-2xl font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 justify-center active:scale-[0.98]"
                 >
                   <span>Creator Program</span>
                   <ArrowRight className="w-4 h-4" />

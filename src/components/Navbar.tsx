@@ -45,7 +45,7 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
     onNavigate(route);
     setToolsDropdownOpen(false);
     setMobileMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo(0, 0);
   };
 
   return (
@@ -55,19 +55,25 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
-          className={`h-[72px] border-b flex items-center justify-between px-4 md:px-6 transition-all duration-200 relative ${
+          className={`h-[72px] border-b flex items-center justify-between px-4 md:px-6 transition-all duration-200 relative backdrop-blur-xl ${
             isScrolled
-              ? 'bg-white rounded-b-2xl border-slate-200 shadow-md shadow-slate-200/50'
-              : 'bg-white/98 border-slate-200/80 shadow-xs'
+              ? 'bg-[#0C111D]/90 rounded-b-2xl border-pink-500/20 shadow-xl shadow-black/50'
+              : 'bg-[#0C111D]/75 border-white/10 shadow-sm'
           }`}
         >
           {/* LOGO */}
           <div className="flex items-center">
             <button
               onClick={() => handleNavClick('home')}
-              className="text-xl sm:text-2xl font-display font-bold tracking-tight text-slate-900 flex items-center gap-1 cursor-pointer hover:opacity-90 transition-opacity"
+              className="text-xl sm:text-2xl font-display font-black tracking-tight text-white flex items-center gap-1.5 cursor-pointer hover:opacity-90 transition-opacity"
             >
-              Elevate <span className="text-blue-600">OS</span>
+              <span>Elevate</span>
+              <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-amber-400 bg-clip-text text-transparent font-black">
+                OS
+              </span>
+              <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-400 hidden sm:inline-block ml-1">
+                CREATOR
+              </span>
             </button>
           </div>
 
@@ -75,8 +81,10 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
           <div className="hidden md:flex items-center gap-6">
             <button
               onClick={() => handleNavClick('home')}
-              className={`text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
-                currentRoute === 'home' ? 'text-blue-600 font-bold' : 'text-slate-700 hover:text-blue-600'
+              className={`text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                currentRoute === 'home'
+                  ? 'text-pink-400 drop-shadow-[0_0_8px_rgba(236,72,153,0.4)]'
+                  : 'text-slate-300 hover:text-white'
               }`}
             >
               Home
@@ -86,14 +94,14 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setToolsDropdownOpen(!toolsDropdownOpen)}
-                className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer py-2 ${
+                className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer py-2 ${
                   ['elevate-ai', 'blueprint', 'revenue'].includes(currentRoute)
-                    ? 'text-blue-600 font-bold'
-                    : 'text-slate-700 hover:text-blue-600'
+                    ? 'text-pink-400 drop-shadow-[0_0_8px_rgba(236,72,153,0.4)]'
+                    : 'text-slate-300 hover:text-white'
                 }`}
               >
                 <span>Tools</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${toolsDropdownOpen ? 'rotate-180 text-blue-600' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${toolsDropdownOpen ? 'rotate-180 text-pink-400' : ''}`} />
               </button>
 
               <AnimatePresence>
@@ -103,22 +111,22 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.96 }}
                     transition={{ duration: 0.18, ease: 'easeOut' }}
-                    className="absolute top-full left-0 mt-2 w-72 bg-white border border-slate-200 rounded-2xl p-2.5 shadow-xl shadow-slate-200/60 z-50 space-y-1"
+                    className="absolute top-full left-0 mt-2 w-76 bg-[#101828]/95 border border-slate-700/80 backdrop-blur-2xl rounded-2xl p-2.5 shadow-2xl shadow-black/80 z-50 space-y-1.5"
                   >
                     <button
                       onClick={() => handleNavClick('elevate-ai')}
                       className={`w-full flex items-start gap-3 p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                         currentRoute === 'elevate-ai'
-                          ? 'bg-blue-50 border-blue-200'
-                          : 'hover:bg-slate-50 border-transparent'
+                          ? 'bg-pink-500/15 border-pink-500/40 text-pink-200'
+                          : 'hover:bg-slate-800/60 border-transparent text-slate-300 hover:text-white'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 font-bold">
+                      <div className="w-8 h-8 rounded-lg bg-pink-500/20 text-pink-400 border border-pink-500/30 flex items-center justify-center shrink-0 font-bold">
                         🧠
                       </div>
                       <div>
-                        <span className="font-bold text-xs text-slate-900 block">Elevate AI</span>
-                        <span className="text-[10px] text-slate-500 block">AI Reels content analysis & rewrites.</span>
+                        <span className="font-bold text-xs text-white block">Elevate AI</span>
+                        <span className="text-[10px] text-slate-400 block">AI Reels content analysis & rewrites.</span>
                       </div>
                     </button>
 
@@ -126,16 +134,16 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
                       onClick={() => handleNavClick('blueprint')}
                       className={`w-full flex items-start gap-3 p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                         currentRoute === 'blueprint'
-                          ? 'bg-indigo-50 border-indigo-200'
-                          : 'hover:bg-slate-50 border-transparent'
+                          ? 'bg-purple-500/15 border-purple-500/40 text-purple-200'
+                          : 'hover:bg-slate-800/60 border-transparent text-slate-300 hover:text-white'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 font-bold">
+                      <div className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center shrink-0 font-bold">
                         🎯
                       </div>
                       <div>
-                        <span className="font-bold text-xs text-slate-900 block">7-Day Creator Roadmap</span>
-                        <span className="text-[10px] text-slate-500 block">Quick 7-day AI action direction.</span>
+                        <span className="font-bold text-xs text-white block">7-Day Creator Roadmap</span>
+                        <span className="text-[10px] text-slate-400 block">Quick 7-day AI action direction.</span>
                       </div>
                     </button>
 
@@ -143,16 +151,16 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
                       onClick={() => handleNavClick('revenue')}
                       className={`w-full flex items-start gap-3 p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                         currentRoute === 'revenue'
-                          ? 'bg-emerald-50 border-emerald-200'
-                          : 'hover:bg-slate-50 border-transparent'
+                          ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-200'
+                          : 'hover:bg-slate-800/60 border-transparent text-slate-300 hover:text-white'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 font-bold">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0 font-bold">
                         💰
                       </div>
                       <div>
-                        <span className="font-bold text-xs text-slate-900 block">Revenue Calculator</span>
-                        <span className="text-[10px] text-slate-500 block">Monetization opportunity potential.</span>
+                        <span className="font-bold text-xs text-white block">Revenue Calculator</span>
+                        <span className="text-[10px] text-slate-400 block">Monetization opportunity potential.</span>
                       </div>
                     </button>
                   </motion.div>
@@ -162,8 +170,10 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
 
             <button
               onClick={() => handleNavClick('services')}
-              className={`text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
-                currentRoute === 'services' ? 'text-blue-600 font-bold' : 'text-slate-700 hover:text-blue-600'
+              className={`text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                currentRoute === 'services'
+                  ? 'text-pink-400 drop-shadow-[0_0_8px_rgba(236,72,153,0.4)]'
+                  : 'text-slate-300 hover:text-white'
               }`}
             >
               Services
@@ -171,8 +181,10 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
 
             <button
               onClick={() => handleNavClick('about')}
-              className={`text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
-                currentRoute === 'about' ? 'text-blue-600 font-bold' : 'text-slate-700 hover:text-blue-600'
+              className={`text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                currentRoute === 'about'
+                  ? 'text-pink-400 drop-shadow-[0_0_8px_rgba(236,72,153,0.4)]'
+                  : 'text-slate-300 hover:text-white'
               }`}
             >
               About
@@ -183,10 +195,10 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
           <div className="hidden md:flex items-center gap-3">
             <button
               onClick={onOpenBooking}
-              className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 text-white px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-blue-500/25 cursor-pointer flex items-center gap-2 transform hover:scale-105"
+              className="bg-gradient-to-r from-pink-600 via-purple-600 to-amber-600 hover:from-pink-500 hover:via-purple-500 hover:to-amber-500 text-white px-4.5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-pink-950/40 cursor-pointer flex items-center gap-2 transform hover:scale-105 active:scale-95"
             >
-              <span className="bg-white/20 text-white text-[10px] px-1.5 py-0.5 rounded font-black tracking-normal">FREE</span>
-              <Calendar className="w-3.5 h-3.5 text-blue-200" />
+              <span className="bg-black/30 text-amber-200 text-[10px] px-1.5 py-0.5 rounded font-black tracking-normal border border-white/20">FREE</span>
+              <Calendar className="w-3.5 h-3.5 text-white" />
               <span>Strategy Session</span>
             </button>
           </div>
@@ -195,13 +207,13 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={onOpenBooking}
-              className="px-3 py-1.5 text-[11px] font-black text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-sm flex items-center gap-1"
+              className="px-3 py-1.5 text-[11px] font-black text-white bg-gradient-to-r from-pink-600 via-purple-600 to-amber-600 rounded-lg shadow-sm flex items-center gap-1"
             >
               <span>✨ Free Session</span>
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-slate-700 hover:text-slate-900 focus:outline-none"
+              className="p-2 text-slate-300 hover:text-white focus:outline-none"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -217,63 +229,63 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="md:hidden bg-white border border-slate-200 rounded-2xl p-5 my-2 shadow-xl flex flex-col gap-3 text-sm font-bold text-slate-800"
+              className="md:hidden bg-[#101828]/95 backdrop-blur-2xl border border-slate-700/80 rounded-2xl p-5 my-2 shadow-2xl flex flex-col gap-3 text-sm font-bold text-slate-200"
             >
               <button
                 onClick={() => handleNavClick('home')}
-                className={`text-left py-2 px-3 rounded-xl flex items-center gap-2.5 ${currentRoute === 'home' ? 'bg-blue-50 text-blue-600' : ''}`}
+                className={`text-left py-2 px-3 rounded-xl flex items-center gap-2.5 ${currentRoute === 'home' ? 'bg-pink-500/15 text-pink-400 border border-pink-500/30' : 'text-slate-300'}`}
               >
-                <Home className="w-4 h-4 text-blue-600" /> Home
+                <Home className="w-4 h-4 text-pink-400" /> Home
               </button>
 
-              <div className="pt-2 border-t border-slate-100">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3 block mb-1">
+              <div className="pt-2 border-t border-slate-800">
+                <span className="text-[10px] font-black uppercase tracking-wider text-pink-400 px-3 block mb-1">
                   Creator Toolkit
                 </span>
                 <button
                   onClick={() => handleNavClick('elevate-ai')}
-                  className={`w-full text-left py-2 px-3 rounded-xl flex items-center gap-2.5 ${currentRoute === 'elevate-ai' ? 'bg-blue-50 text-blue-600' : ''}`}
+                  className={`w-full text-left py-2 px-3 rounded-xl flex items-center gap-2.5 ${currentRoute === 'elevate-ai' ? 'bg-pink-500/15 text-pink-400 border border-pink-500/30' : 'text-slate-300'}`}
                 >
                   <span>🧠</span> Elevate AI Content Analyzer
                 </button>
                 <button
                   onClick={() => handleNavClick('blueprint')}
-                  className={`w-full text-left py-2 px-3 rounded-xl flex items-center gap-2.5 ${currentRoute === 'blueprint' ? 'bg-indigo-50 text-indigo-600' : ''}`}
+                  className={`w-full text-left py-2 px-3 rounded-xl flex items-center gap-2.5 ${currentRoute === 'blueprint' ? 'bg-purple-500/15 text-purple-400 border border-purple-500/30' : 'text-slate-300'}`}
                 >
                   <span>🎯</span> 7-Day Creator Roadmap
                 </button>
                 <button
                   onClick={() => handleNavClick('revenue')}
-                  className={`w-full text-left py-2 px-3 rounded-xl flex items-center gap-2.5 ${currentRoute === 'revenue' ? 'bg-emerald-50 text-emerald-600' : ''}`}
+                  className={`w-full text-left py-2 px-3 rounded-xl flex items-center gap-2.5 ${currentRoute === 'revenue' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'text-slate-300'}`}
                 >
                   <span>💰</span> Revenue Calculator
                 </button>
               </div>
 
-              <div className="pt-2 border-t border-slate-100">
+              <div className="pt-2 border-t border-slate-800">
                 <button
                   onClick={() => handleNavClick('services')}
-                  className={`w-full text-left py-2 px-3 rounded-xl flex items-center gap-2.5 ${currentRoute === 'services' ? 'bg-blue-50 text-blue-600' : ''}`}
+                  className={`w-full text-left py-2 px-3 rounded-xl flex items-center gap-2.5 ${currentRoute === 'services' ? 'bg-pink-500/15 text-pink-400 border border-pink-500/30' : 'text-slate-300'}`}
                 >
-                  <Briefcase className="w-4 h-4 text-purple-600" /> Services
+                  <Briefcase className="w-4 h-4 text-purple-400" /> Services
                 </button>
                 <button
                   onClick={() => handleNavClick('about')}
-                  className={`w-full text-left py-2 px-3 rounded-xl flex items-center gap-2.5 ${currentRoute === 'about' ? 'bg-blue-50 text-blue-600' : ''}`}
+                  className={`w-full text-left py-2 px-3 rounded-xl flex items-center gap-2.5 ${currentRoute === 'about' ? 'bg-pink-500/15 text-pink-400 border border-pink-500/30' : 'text-slate-300'}`}
                 >
-                  <Info className="w-4 h-4 text-pink-600" /> About Elevate OS
+                  <Info className="w-4 h-4 text-pink-400" /> About Elevate OS
                 </button>
               </div>
 
-              <div className="pt-3 border-t border-slate-100">
+              <div className="pt-3 border-t border-slate-800">
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
                     onOpenBooking();
                   }}
-                  className="w-full py-3 px-4 text-xs font-black text-white bg-blue-600 rounded-xl text-center cursor-pointer shadow-md flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 text-xs font-black text-white bg-gradient-to-r from-pink-600 via-purple-600 to-amber-600 hover:from-pink-500 hover:via-purple-500 hover:to-amber-500 rounded-xl text-center cursor-pointer shadow-md shadow-pink-950/40 flex items-center justify-center gap-2"
                 >
-                  <Calendar className="w-4 h-4 text-blue-200" /> Book Free Strategy Session
+                  <Calendar className="w-4 h-4 text-white" /> Book Free Strategy Session
                 </button>
               </div>
             </motion.div>

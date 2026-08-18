@@ -10,11 +10,11 @@ export function InstagramPromoSection() {
       <div className="w-[min(1120px,92%)] mx-auto relative z-10">
         <div className="bg-gradient-to-br from-[#131F35] to-[#0E1624] border border-[#2B3F5E] hover:border-pink-500/30 rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden transition-all duration-300 text-center">
           
-          {/* Floating Emojis */}
-          <div className="absolute top-6 left-10 opacity-25 text-3xl select-none animate-bounce pointer-events-none hidden sm:block" style={{ animationDuration: '3s' }}>📸</div>
-          <div className="absolute bottom-6 right-10 opacity-25 text-3xl select-none animate-bounce pointer-events-none hidden sm:block" style={{ animationDuration: '4s', animationDelay: '1s' }}>🔥</div>
-          <div className="absolute top-1/3 right-8 opacity-25 text-2xl select-none animate-bounce pointer-events-none" style={{ animationDuration: '3.5s', animationDelay: '0.5s' }}>💬</div>
-          <div className="absolute bottom-1/3 left-8 opacity-25 text-2xl select-none animate-bounce pointer-events-none" style={{ animationDuration: '4.5s', animationDelay: '1.5s' }}>❤️</div>
+          {/* Floating Emojis with Hardware Accelerated 3D Float */}
+          <div className="absolute top-6 left-10 opacity-25 text-3xl select-none animate-float-a gpu-layer pointer-events-none hidden sm:block" style={{ willChange: 'transform' }}>📸</div>
+          <div className="absolute bottom-6 right-10 opacity-25 text-3xl select-none animate-float-b gpu-layer pointer-events-none hidden sm:block" style={{ animationDelay: '-1.5s', willChange: 'transform' }}>🔥</div>
+          <div className="absolute top-1/3 right-8 opacity-25 text-2xl select-none animate-float-c gpu-layer pointer-events-none" style={{ animationDelay: '-0.8s', willChange: 'transform' }}>💬</div>
+          <div className="absolute bottom-1/3 left-8 opacity-25 text-2xl select-none animate-float-a gpu-layer pointer-events-none" style={{ animationDelay: '-2.2s', willChange: 'transform' }}>❤️</div>
 
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-orange-500/10 border border-pink-500/30 text-pink-400 text-xs font-black uppercase tracking-widest mb-6 select-none shadow-lg">
