@@ -57,7 +57,7 @@ export const Footer: React.FC<FooterProps> = memo(({ onNavigate, onOpenBooking, 
                   className="hover:text-pink-400 transition-colors cursor-pointer flex items-center gap-1.5"
                 >
                   <Brain className="w-3.5 h-3.5 text-pink-400" />
-                  <span>Elevate AI Content Analyzer</span>
+                  <span>Elevate AI Reel Analyzer</span>
                 </button>
               </li>
               <li>

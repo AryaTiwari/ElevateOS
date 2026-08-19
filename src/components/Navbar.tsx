@@ -125,8 +125,8 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
                         🧠
                       </div>
                       <div>
-                        <span className="font-bold text-xs text-white block">Elevate AI</span>
-                        <span className="text-[10px] text-slate-400 block">AI Reels content analysis & rewrites.</span>
+                        <span className="font-bold text-xs text-white block">Elevate AI Reel Analyzer</span>
+                        <span className="text-[10px] text-slate-400 block">AI Reel breakdown, retention & posting intel.</span>
                       </div>
                     </button>
 
@@ -246,7 +246,7 @@ export const Navbar: React.FC<NavbarProps> = memo(({ currentRoute, onNavigate, o
                   onClick={() => handleNavClick('elevate-ai')}
                   className={`w-full text-left py-2 px-3 rounded-xl flex items-center gap-2.5 ${currentRoute === 'elevate-ai' ? 'bg-pink-500/15 text-pink-400 border border-pink-500/30' : 'text-slate-300'}`}
                 >
-                  <span>🧠</span> Elevate AI Content Analyzer
+                  <span>🧠</span> Elevate AI Reel Analyzer
                 </button>
                 <button
                   onClick={() => handleNavClick('blueprint')}

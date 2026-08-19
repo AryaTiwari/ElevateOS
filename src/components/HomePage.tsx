@@ -55,7 +55,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-pink-600 via-purple-600 to-amber-600 hover:opacity-95 text-white font-black text-sm uppercase tracking-wider rounded-2xl transition-all duration-150 shadow-lg shadow-pink-950/40 flex items-center justify-center gap-2.5 cursor-pointer active:scale-[0.98] touch-manipulation"
           >
             <Brain className="w-4 h-4 text-white" />
-            <span>Analyze My Content →</span>
+            <span>Analyze My Reel →</span>
           </button>
 
           <button
