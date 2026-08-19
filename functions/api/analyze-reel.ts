@@ -135,3 +135,52 @@ export async function onRequestPost(context: {
   }
 }
 
+// ---------------------------------------------------------------------
+// DIAGNOSTIC ONLY — lets you check this endpoint from a phone browser by
+// just visiting the URL directly (a plain GET), no dev tools needed:
+//   https://your-project.pages.dev/api/analyze-reel
+// It checks the function is deployed, the secret is present, and makes
+// one tiny real call to Gemini so you see the exact error if one exists.
+// Safe to delete once everything is confirmed working.
+// ---------------------------------------------------------------------
+export async function onRequestGet(context: { env: { GEMINI_API_KEY?: string } }) {
+  const apiKeyPresent = !!context.env.GEMINI_API_KEY;
+
+  if (!apiKeyPresent) {
+    return Response.json({
+      functionDeployed: true,
+      apiKeyPresent: false,
+      message:
+        'GEMINI_API_KEY is not visible to this deployment. Add it in Cloudflare Pages → Settings → Variables and Secrets, then redeploy (adding a secret does not apply to deployments made before it).',
+    });
+  }
+
+  try {
+    const testRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${context.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: 'Reply with exactly the word: OK' }] }],
+        }),
+      }
+    );
+
+    const testData: any = await testRes.json();
+
+    return Response.json({
+      functionDeployed: true,
+      apiKeyPresent: true,
+      geminiCallStatus: testRes.status,
+      geminiCallSucceeded: testRes.ok,
+      geminiRawResponse: testData,
+    });
+  } catch (err: any) {
+    return Response.json({
+      functionDeployed: true,
+      apiKeyPresent: true,
+      geminiCallThrew: err?.message || String(err),
+    });
+  }
+}
