@@ -1,5 +1,4 @@
 import React, { useRef, useState, useCallback, memo } from 'react';
-import { UploadCloud, Film, X, RefreshCw, AlertCircle, Play, CheckCircle2 } from 'lucide-react';
 import { MAX_REEL_UPLOAD_SIZE_MB, validateReelFile, formatFileSize } from '../../utils/reelAnalyzer';
 
 interface ReelUploaderProps {
@@ -37,7 +36,6 @@ export const ReelUploader: React.FC<ReelUploaderProps> = memo(({
     if (e.target.files && e.target.files[0]) {
       handleProcessFile(e.target.files[0]);
     }
-    // Reset file input value so re-selecting same file triggers change
     if (e.target) {
       e.target.value = '';
     }
@@ -94,8 +92,8 @@ export const ReelUploader: React.FC<ReelUploaderProps> = memo(({
           } ${disabled ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''}`}
         >
           <div className="flex flex-col items-center justify-center space-y-4 max-w-md mx-auto">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-amber-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 group-hover:scale-110 group-hover:border-pink-400 transition-transform shadow-lg shadow-pink-500/10">
-              <UploadCloud className="w-8 h-8" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-amber-500/10 border border-pink-500/30 flex items-center justify-center group-hover:scale-110 group-hover:border-pink-400 transition-transform shadow-lg shadow-pink-500/10 text-3xl">
+              <span>📹</span>
             </div>
 
             <div className="space-y-1.5">
@@ -112,7 +110,7 @@ export const ReelUploader: React.FC<ReelUploaderProps> = memo(({
                 MP4, MOV, WEBM
               </span>
               <span className="px-2.5 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-300 font-bold">
-                Maximum Reel size: {MAX_REEL_UPLOAD_SIZE_MB} MB
+                Max Reel size: {MAX_REEL_UPLOAD_SIZE_MB} MB
               </span>
             </div>
           </div>
@@ -122,15 +120,15 @@ export const ReelUploader: React.FC<ReelUploaderProps> = memo(({
         <div className="bg-[#101828]/95 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl backdrop-blur-2xl space-y-4">
           <div className="flex items-center justify-between gap-3 border-b border-slate-800/80 pb-3.5">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-pink-500/15 border border-pink-500/30 flex items-center justify-center text-pink-400 shrink-0">
-                <Film className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-pink-500/15 border border-pink-500/30 flex items-center justify-center text-pink-400 shrink-0 text-base">
+                <span>🎬</span>
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold text-white truncate max-w-[220px] sm:max-w-md">
                   {videoFile.name}
                 </p>
                 <p className="text-xs text-slate-400 font-medium">
-                  {formatFileSize(videoFile.size)} • Ready for analysis
+                  {formatFileSize(videoFile.size)} • Ready for multimodal analysis
                 </p>
               </div>
             </div>
@@ -138,52 +136,47 @@ export const ReelUploader: React.FC<ReelUploaderProps> = memo(({
             <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
-                onClick={() => !disabled && fileInputRef.current?.click()}
+                onClick={() => fileInputRef.current?.click()}
                 disabled={disabled}
-                className="px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                title="Replace Reel"
+                className="px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                <RefreshCw className="w-3 h-3 text-pink-400" />
-                <span className="hidden sm:inline">Replace</span>
+                <span>🔄</span>
+                <span>Change</span>
               </button>
-
               <button
                 type="button"
                 onClick={onRemoveFile}
                 disabled={disabled}
                 className="p-1.5 rounded-xl bg-slate-800/90 hover:bg-red-500/20 text-slate-400 hover:text-red-300 border border-slate-700 hover:border-red-500/30 transition-all cursor-pointer disabled:opacity-50"
-                title="Remove Reel"
-                aria-label="Remove Reel"
+                title="Remove video"
               >
-                <X className="w-4 h-4" />
+                <span>❌</span>
               </button>
             </div>
           </div>
 
-          {/* Compact Video Player Preview */}
-          <div className="relative w-full max-w-sm mx-auto rounded-2xl overflow-hidden bg-black/80 border border-slate-800 shadow-inner flex items-center justify-center aspect-[9/14] max-h-[380px]">
-            {videoUrl ? (
+          {/* Embedded Video Player */}
+          {videoUrl && (
+            <div className="relative rounded-2xl overflow-hidden bg-black/80 max-h-[360px] flex items-center justify-center border border-slate-800/80 group">
               <video
                 src={videoUrl}
                 controls
                 playsInline
-                preload="metadata"
-                className="w-full h-full object-contain"
+                className="max-h-[360px] w-auto max-w-full rounded-2xl object-contain mx-auto"
               />
-            ) : (
-              <div className="flex flex-col items-center justify-center text-slate-500 gap-2 p-4">
-                <Play className="w-8 h-8 text-pink-400/80" />
-                <span className="text-xs font-semibold">Video preview ready</span>
-              </div>
-            )}
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 text-xs text-emerald-400 font-medium bg-emerald-500/10 px-3.5 py-2 rounded-xl border border-emerald-500/20">
+            <span>✅</span>
+            <span>Video loaded successfully. Enter your creator context below and click Analyze.</span>
           </div>
         </div>
       )}
 
-      {/* Validation / Error Message */}
       {activeError && (
-        <div className="flex items-start gap-2.5 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs sm:text-sm font-medium animate-fadeIn">
-          <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+        <div className="flex items-start gap-2 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs font-medium">
+          <span>⚠️</span>
           <span>{activeError}</span>
         </div>
       )}

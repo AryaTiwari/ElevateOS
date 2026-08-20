@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import { CheckSquare, ArrowRight, AlertCircle, Sparkles, Lightbulb } from 'lucide-react';
 import { BeforeYouPostAction } from '../../types';
 
 interface BeforeYouPostProps {
@@ -12,7 +11,7 @@ export const BeforeYouPost: React.FC<BeforeYouPostProps> = memo(({ actions }) =>
       {/* Section Header */}
       <div className="border-b border-slate-800/80 pb-4">
         <span className="text-[10px] font-black uppercase tracking-widest text-pink-400 bg-pink-500/10 px-2.5 py-1 rounded-full border border-pink-500/30 inline-flex items-center gap-1 mb-1.5">
-          <CheckSquare className="w-3 h-3 text-pink-400" />
+          <span>📋</span>
           <span>PRE-PUBLISH CHECKLIST</span>
         </span>
         <h3 className="text-xl sm:text-2xl font-black text-white">
@@ -48,7 +47,7 @@ export const BeforeYouPost: React.FC<BeforeYouPostProps> = memo(({ actions }) =>
             {/* Detected Issue (if present) */}
             {item.detectedIssue && (
               <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/20 px-3.5 py-2 rounded-xl text-[11px] text-amber-300 font-medium">
-                <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                <span className="shrink-0 mt-0.5">⚠️</span>
                 <span>
                   <strong className="font-black text-amber-200">Detected issue:</strong> {item.detectedIssue}
                 </span>
@@ -57,7 +56,7 @@ export const BeforeYouPost: React.FC<BeforeYouPostProps> = memo(({ actions }) =>
 
             {/* Suggested Improvement / Try This */}
             <div className="flex items-start gap-2 bg-pink-500/10 border border-pink-500/30 px-3.5 py-2.5 rounded-xl text-xs text-pink-200 font-medium">
-              <Sparkles className="w-3.5 h-3.5 text-pink-400 shrink-0 mt-0.5" />
+              <span className="shrink-0 mt-0.5">💡</span>
               <span>
                 <strong className="font-black text-white uppercase tracking-wider text-[10px] mr-1.5">TRY THIS:</strong>
                 {item.suggestedFix}

@@ -141,17 +141,226 @@ export interface TrendSignalIndicator {
   summary: string;
 }
 
+export interface AudioAnalysisDetail {
+  spokenDialogue?: string;
+  speechClarity?: string;
+  energyAndTone?: string;
+  musicAndSoundBalance?: string;
+  audioHookStrength?: string;
+  audioSupportsVisual?: boolean;
+}
+
+export interface VisualAnalysisDetail {
+  framingAndLighting?: string;
+  pacingAndEditing?: string;
+  captionPlacementAndSafeZone?: string;
+  bRollAndVisualVariety?: string;
+  loopPotential?: string;
+}
+
+export interface RetentionAnalysisDetail {
+  hookHoldRatePotential?: string;
+  attentionDipRisks?: string[];
+  climaxPayoffStrength?: string;
+  loopTrigger?: string;
+}
+
+// ----------------------------------------------------
+// CREATOR STRATEGY & REEL ANALYSIS TYPES
+// ----------------------------------------------------
+
+export interface CreatorScoreItem {
+  score: number; // 1 to 10
+  explanation: string;
+}
+
+export interface CreatorScores {
+  hook: CreatorScoreItem;
+  pacing: CreatorScoreItem;
+  value: CreatorScoreItem;
+  visuals: CreatorScoreItem;
+  audio: CreatorScoreItem;
+  ending: CreatorScoreItem;
+}
+
+export interface WhatsWorkingItem {
+  title: string;
+  whatAiNoticed: string;
+  whyItHelps: string;
+}
+
+export interface WhatsHoldingItBackItem {
+  title: string;
+  whatAiNoticed: string;
+  whyItMatters: string;
+  timestamp?: string;
+}
+
+export interface StrategicChangeItem {
+  number: number; // 1, 2, 3
+  title: string;
+  whatToChange: string;
+  tryThis: string;
+  visualAndTextChange?: string;
+}
+
+export interface BetterVersionScript {
+  newHook: string;
+  bodyStructure: string;
+  betterEnding: string;
+  notes?: string;
+}
+
+export interface AudioAndEditingNotes {
+  voice?: string;
+  music?: string;
+  soundEffects?: string;
+  pauses?: string;
+  cutsAndTransitions?: string;
+  captions?: string;
+}
+
+export interface NextReelIdea {
+  title: string;
+  concept: string;
+  whyItWorksNext: string;
+}
+
+export interface PerformanceOutlook {
+  creatorBaseline: string; // e.g. "5,000 views"
+  potential: 'Above your normal performance' | 'Around your normal performance' | 'Below your normal performance';
+  explanation: string;
+  formatNote?: string;
+}
+
+export interface PostingIntelligenceData {
+  bestDay: string;
+  bestTimeIST: string;
+  secondaryWindowIST?: string;
+  reasoning: string;
+}
+
+export type NextReelIdeaItem = NextReelIdea;
+export type PerformanceOutlookInfo = PerformanceOutlook;
+export type PostingIntelligence = PostingIntelligenceData;
+
+
+
+export interface HookAnalysisDimension {
+  dimension: string;
+  score: number; // 1 to 10
+  justification: string;
+}
+
+export interface HookAnalysisReport {
+  overallHookScore: number; // 1 to 10
+  detectedOpeningHook: string;
+  dimensions: HookAnalysisDimension[];
+  hookDiagnosis: string;
+}
+
+export interface RetentionRiskZone {
+  timestamp: string; // e.g. "00:04–00:07"
+  whatHappens: string;
+  whyAttentionDeclines: string;
+  specificEditFix: string;
+}
+
+export interface AudioForensics {
+  spokenDialogueDetected: boolean;
+  transcriptExcerpt?: string;
+  spokenDelivery: string;
+  speechSpeedAndPacing: string;
+  pausesAndBreaths: string;
+  vocalEnergyAndTone: string;
+  vocalClarity: string;
+  musicTrackBalance: string;
+  soundEffectsUsage: string;
+  audioVisualSync: string;
+}
+
+export interface ContentArchitecture {
+  corePromise: string;
+  targetViewerPersona: string;
+  curiosityGap: string;
+  valueDelivery: string;
+  storytellingStructure: string;
+  payoffExecution: string;
+  callToActionAnalysis: string;
+  commentPotential: string;
+  sharePotential: string;
+  savePotential: string;
+  loopPotential: string;
+}
+
+export interface ConcreteRewriteItem {
+  id: string;
+  priority: 'P0' | 'P1' | 'P2';
+  targetSection: string;
+  currentDetected: string;
+  problemIdentified: string;
+  concreteRewrite: string;
+  visualChange: string;
+  onScreenText: string;
+  timestamp: string;
+  whyItMatters: string;
+}
+
+export interface EditingBlueprintEntry {
+  timestampRange: string;
+  currentContent: string;
+  identifiedFriction: string;
+  recommendedChange: string;
+}
+
+export interface PriorityRecommendation {
+  priority: 'P0' | 'P1' | 'P2';
+  issue: string;
+  evidenceFromReel: string;
+  exactFix: string;
+  whyItMatters: string;
+}
+
+export interface TrendIntelligenceReport {
+  isLiveApiConnected: boolean;
+  trendContextStatus: string;
+  relevantFormatTrend: string;
+  whyItIsRelevant: string;
+  usedInThisReel: boolean;
+  howToAdapt: string;
+}
+
+export interface PerformanceCategoryAssessment {
+  creatorBaseline: string;
+  potentialPerformanceCategory: string;
+  supportingReasons: string[];
+  factorsIncreasingPerformance: string[];
+  factorsDecreasingPerformance: string[];
+}
+
 export interface ReelAnalysisResult {
   id: string;
   timestamp: number;
   videoFileName: string;
   videoFileSizeFormatted: string;
   videoUrl?: string;
+  durationFormatted?: string;
+  overallScore?: number; // 1 to 10
+  verdict?: string; // 1-sentence verdict
+  creatorScores?: CreatorScores; // 6 core category scores
+  whatsWorking?: WhatsWorkingItem[]; // 3 strongest elements
+  whatsHoldingItBack?: WhatsHoldingItBackItem[]; // 3 biggest friction points
+  top3Changes?: StrategicChangeItem[]; // Change 1, 2, 3
+  betterVersion?: BetterVersionScript; // Improved script (Hook, Body, Ending)
+  audioAndEditing?: AudioAndEditingNotes; // Concise audio & editing review
+  beforeYouPostChecklist?: string[]; // Simple max 5-item checklist
+  nextReelIdeas?: NextReelIdea[]; // 2–3 follow-up ideas
+  performanceOutlook?: PerformanceOutlook; // Baseline comparison & natural format note
   analysisConfidence?: 'High' | 'Moderate' | 'Limited';
   analysisConfidenceReason?: string;
   creatorContext: ReelCreatorContext;
-  whatAiNoticed: string[]; // 3–5 specific video-grounded observations showing the AI actually watched the video
-  timelineBreakdown: TimelineBreakdownSegment[]; // 3–6 meaningful timestamp segments
+  whatAiNoticed: string[];
+  timelineBreakdown: TimelineBreakdownSegment[];
   performanceInsights: {
     creatorAverage: string;
     aiEstimatedRange: string;
@@ -175,6 +384,34 @@ export interface ReelAnalysisResult {
     contentSignals: TrendSignalIndicator;
   };
   summary: string;
+  transcript?: string;
+  audioAnalysis?: AudioAnalysisDetail;
+  visualAnalysis?: VisualAnalysisDetail;
+  retentionAnalysis?: RetentionAnalysisDetail;
+  hookAnalysis?: HookAnalysisReport;
+  retentionRiskZones?: RetentionRiskZone[];
+  audioForensics?: AudioForensics;
+  contentArchitecture?: ContentArchitecture;
+  concreteRewrites?: ConcreteRewriteItem[];
+  editingBlueprint?: EditingBlueprintEntry[];
+  priorityRecommendations?: PriorityRecommendation[];
+  trendIntelligence?: TrendIntelligenceReport;
+  performanceCategoryAssessment?: PerformanceCategoryAssessment;
+}
+
+export interface MonthlyUsageInfo {
+  used: number;
+  limit: number;
+  remaining: number;
+  monthYear: string;
+  canAnalyze: boolean;
+}
+
+export interface UserProfile {
+  id: string;
+  email?: string;
+  tier: 'free' | 'creator_pro' | 'flagship';
+  createdAt?: string;
 }
 
 export interface SavedReelAnalysisSummary {

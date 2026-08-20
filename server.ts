@@ -1,9 +1,144 @@
 import { GoogleGenAI } from "@google/genai";
+import { createClient } from "@supabase/supabase-js";
 import { generateRuleBasedDiagnosis } from "./src/utils/creatorStrategist.ts";
 import { generateRuleBasedAnalysis } from "./src/utils/contentAnalyzer.ts";
 import { generateRuleBased7DayRoadmap } from "./src/utils/roadmapGenerator.ts";
+import { generateRuleBasedReelAnalysis } from "./src/utils/reelRuleAnalyzer.ts";
 
 const strategySubmissions: any[] = [];
+
+// Helper to attempt generation across recommended models with automatic fallback on 503/429/quota limits
+async function generateWithGeminiFallback(ai: GoogleGenAI, payload: { contents: any; config?: any }) {
+  const models = ["gemini-3.7-flash", "gemini-2.5-flash", "gemini-3.1-flash-lite", "gemini-flash-latest"];
+  let lastError: any = null;
+  for (const model of models) {
+    try {
+      console.log(`[ELEVATE AI] Attempting generation with model: ${model}...`);
+      const response = await ai.models.generateContent({
+        model,
+        contents: payload.contents,
+        config: payload.config
+      });
+      if (response && response.text) {
+        return response;
+      }
+    } catch (err: any) {
+      lastError = err;
+      console.warn(`[ELEVATE AI] Model ${model} encountered error, trying fallback model if available:`, err?.message || err);
+    }
+  }
+  throw lastError || new Error("All Gemini models were unavailable or exceeded rate limits.");
+}
+
+function isValidHttpUrl(url?: string): boolean {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim();
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) return false;
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+// Helper to get server-side Supabase client if credentials exist
+function getServerSupabase(env?: any) {
+  const envUrl = (env?.SUPABASE_URL || process.env.SUPABASE_URL || env?.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL || '').trim();
+  const url = isValidHttpUrl(envUrl) ? envUrl : 'https://ztvqbqtxvvaxiyefhadg.supabase.co';
+  const key = env?.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || env?.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || env?.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_E_iPEkoYCyB4fUb7n1zNlg_1WjyYwQN';
+  if (url && isValidHttpUrl(url) && key) {
+    try {
+      return createClient(url, key);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+// In-memory usage store fallback
+const inMemoryUsageStore = new Map<string, { count: number; monthYear: string }>();
+
+export async function checkAndIncrementUsage(userIdOrSession: string, env?: any): Promise<{ allowed: boolean; used: number; limit: number }> {
+  const currentMonthYear = new Date().toISOString().slice(0, 7); // e.g. "2026-08"
+  const MAX_LIMIT = 5;
+  const key = `${userIdOrSession || 'guest'}_${currentMonthYear}`;
+
+  const sb = getServerSupabase(env);
+  if (sb) {
+    try {
+      const { data } = await sb
+        .from('usage_tracking')
+        .select('count')
+        .eq('user_id', userIdOrSession)
+        .eq('month_year', currentMonthYear)
+        .maybeSingle();
+
+      const currentCount = data?.count || 0;
+      if (currentCount >= MAX_LIMIT) {
+        return { allowed: false, used: currentCount, limit: MAX_LIMIT };
+      }
+
+      const newCount = currentCount + 1;
+      await sb.from('usage_tracking').upsert({
+        user_id: userIdOrSession,
+        month_year: currentMonthYear,
+        count: newCount,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,month_year' });
+
+      return { allowed: true, used: newCount, limit: MAX_LIMIT };
+    } catch (dbErr) {
+      console.warn("Supabase usage check warning (using memory fallback):", dbErr);
+    }
+  }
+
+  // Memory fallback
+  const record = inMemoryUsageStore.get(key) || { count: 0, monthYear: currentMonthYear };
+  if (record.count >= MAX_LIMIT) {
+    return { allowed: false, used: record.count, limit: MAX_LIMIT };
+  }
+  record.count += 1;
+  inMemoryUsageStore.set(key, record);
+  return { allowed: true, used: record.count, limit: MAX_LIMIT };
+}
+
+export async function getUsageStatus(userIdOrSession: string, env?: any): Promise<{ used: number; limit: number; monthYear: string; canAnalyze: boolean }> {
+  const currentMonthYear = new Date().toISOString().slice(0, 7);
+  const MAX_LIMIT = 5;
+  const key = `${userIdOrSession || 'guest'}_${currentMonthYear}`;
+
+  const sb = getServerSupabase(env);
+  if (sb) {
+    try {
+      const { data } = await sb
+        .from('usage_tracking')
+        .select('count')
+        .eq('user_id', userIdOrSession)
+        .eq('month_year', currentMonthYear)
+        .maybeSingle();
+
+      const used = data?.count || 0;
+      return {
+        used,
+        limit: MAX_LIMIT,
+        monthYear: currentMonthYear,
+        canAnalyze: used < MAX_LIMIT
+      };
+    } catch {
+      // fallback to memory
+    }
+  }
+
+  const record = inMemoryUsageStore.get(key) || { count: 0, monthYear: currentMonthYear };
+  return {
+    used: record.count,
+    limit: MAX_LIMIT,
+    monthYear: currentMonthYear,
+    canAnalyze: record.count < MAX_LIMIT
+  };
+}
 
 // Helper to clean markdown code blocks and parse JSON safely
 function parseCleanJSON(rawText: string): any {
@@ -120,7 +255,7 @@ Return ONLY a JSON object matching this exact schema:
 }`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.7-flash",
+        model: "gemini-3.6-flash",
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -323,7 +458,7 @@ Return ONLY a valid JSON object matching this exact schema:
 }`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.7-flash",
+        model: "gemini-3.6-flash",
         contents: prompt,
         config: {
           responseMimeType: "application/json",
@@ -365,7 +500,14 @@ Return ONLY a valid JSON object matching this exact schema:
   };
 }
 
-export async function handleAnalyzeReel(body: any, apiKey?: string) {
+export async function handleAnalyzeReel(body: any, apiKey?: string, env?: any) {
+  // 1. Validate request body
+  if (!body || typeof body !== "object") {
+    const err: any = new Error("Invalid request payload. Expected JSON object with video data.");
+    err.statusCode = 400;
+    throw err;
+  }
+
   const {
     followers,
     averageViews,
@@ -373,18 +515,59 @@ export async function handleAnalyzeReel(body: any, apiKey?: string) {
     targetAudience,
     fileName,
     fileSize,
+    mimeType,
     durationSec,
     dimensions,
     aspectRatio,
+    videoBase64,
     frames,
+    userId,
+    sessionId,
   } = body || {};
 
-  const cleanFollowers = String(followers || "10,000").trim();
-  const cleanAvgViews = String(averageViews || "5,000").trim();
-  const cleanNiche = String(niche || "Fitness").trim();
-  const cleanAudience = String(targetAudience || "Target Audience in India").trim();
-  const cleanFileName = fileName || "uploaded_reel.mp4";
-  const cleanFileSize = fileSize || "18.4 MB";
+  // 2. Validate video presence & payload size
+  const hasVideo = typeof videoBase64 === "string" && videoBase64.length > 0;
+  const hasFrames = Array.isArray(frames) && frames.length > 0;
+
+  if (!hasVideo && !hasFrames) {
+    const noDataErr: any = new Error("No video data received for Reel analysis. A video file is required.");
+    noDataErr.statusCode = 400;
+    throw noDataErr;
+  }
+
+  // 3. Payload size check (80MB string safety cap)
+  if (hasVideo && videoBase64.length > 80 * 1024 * 1024) {
+    const payloadErr: any = new Error("Video payload exceeds maximum size limit (80MB). Please compress the video or upload a shorter clip.");
+    payloadErr.statusCode = 413;
+    throw payloadErr;
+  }
+
+  const cleanFileName = fileName ? String(fileName).slice(0, 100) : "uploaded_reel.mp4";
+  const cleanFileSize = fileSize ? String(fileSize).slice(0, 20) : "unknown size";
+  const effectiveUserId = userId || sessionId || "anon_" + Date.now();
+  const safeSessionPrefix = typeof effectiveUserId === "string" ? effectiveUserId.slice(0, 12) : "anon";
+
+  // 4. Safe metadata logging (NEVER log base64 data, API keys, or private auth headers)
+  console.log(`[ELEVATE AI API] Reel Analysis Request: file="${cleanFileName}", size="${cleanFileSize}", duration=${durationSec || "unknown"}s, aspect=${aspectRatio || "9:16"}, frames=${Array.isArray(frames) ? frames.length : 0}, user="${safeSessionPrefix}"`);
+
+  // 5. Check & increment monthly usage limit (5 free Reel analyses / month)
+  const usageCheck = await checkAndIncrementUsage(effectiveUserId, env);
+  if (!usageCheck.allowed) {
+    console.warn(`[ELEVATE AI API] Usage limit exceeded for user/session ${safeSessionPrefix}: ${usageCheck.used}/${usageCheck.limit}`);
+    const limitError: any = new Error(
+      "You have reached your free monthly limit of 5 Reel analyses (5/5 used). Book a free strategy session or upgrade your tier for unlimited creator audits."
+    );
+    limitError.statusCode = 429;
+    limitError.limitReached = true;
+    limitError.used = usageCheck.used;
+    limitError.limit = usageCheck.limit;
+    throw limitError;
+  }
+
+  const cleanFollowers = String(followers || "10,000").trim().slice(0, 30);
+  const cleanAvgViews = String(averageViews || "5,000").trim().slice(0, 30);
+  const cleanNiche = String(niche || "Fitness").trim().slice(0, 50);
+  const cleanAudience = String(targetAudience || "Target Audience in India").trim().slice(0, 100);
 
   // Helper to parse creator numbers (e.g. "25,000" or "8K" -> 25000 / 8000)
   const parseNum = (val: string): number => {
@@ -404,323 +587,213 @@ export async function handleAnalyzeReel(body: any, apiKey?: string) {
   const avgViewsNum = parseNum(cleanAvgViews);
   const followersNum = parseNum(cleanFollowers);
 
-  // Fallback Rule-based dynamic generator (used if Gemini fails or no apiKey)
-  const generateFallbackResult = () => {
-    const isHighReachRatio = avgViewsNum > followersNum * 0.8;
-    const lowEst = Math.round(avgViewsNum * (isHighReachRatio ? 1.05 : 1.2));
-    const highEst = Math.round(avgViewsNum * (isHighReachRatio ? 2.2 : 2.7));
-    const upsideEst = Math.round(avgViewsNum * (isHighReachRatio ? 3.8 : 4.5));
+  // 6. Verify GEMINI_API_KEY server-side configuration
+  if (!apiKey) {
+    console.error("[ELEVATE AI API ERROR] GEMINI_API_KEY is not configured on the server.");
+    const keyErr: any = new Error("GEMINI_API_KEY is not configured on the server. Please check your environment variables or Settings panel.");
+    keyErr.statusCode = 500;
+    throw keyErr;
+  }
 
-    const bestDaysByNiche: Record<string, { days: string; time: string; secondary: string; reason: string }> = {
-      Fitness: {
-        days: "Tuesday & Thursday",
-        time: "6:30 AM – 8:00 AM & 7:30 PM IST",
-        secondary: "12:30 PM – 1:45 PM IST",
-        reason: "Fitness audiences check workout routines early morning before work and review meal prep in the evening."
-      },
-      Fashion: {
-        days: "Wednesday, Friday & Saturday",
-        time: "7:00 PM – 9:30 PM IST",
-        secondary: "1:00 PM – 2:30 PM IST",
-        reason: "Fashion and lifestyle engagement peaks as audiences unwind during weekend prep and leisure evening browsing."
-      },
-      Comedy: {
-        days: "Friday, Saturday & Sunday",
-        time: "8:00 PM – 10:30 PM IST",
-        secondary: "2:00 PM – 3:30 PM IST",
-        reason: "Entertainment content thrives when viewers seek decompression during dinner and late-night leisure."
-      },
-      Business: {
-        days: "Tuesday, Wednesday & Thursday",
-        time: "8:00 AM – 9:30 AM & 6:30 PM IST",
-        secondary: "1:00 PM – 2:00 PM IST",
-        reason: "Professional audiences consume tactical insights during morning transit and right after workday wrap-up."
-      },
-      Technology: {
-        days: "Monday, Wednesday & Saturday",
-        time: "7:30 PM – 9:30 PM IST",
-        secondary: "12:45 PM – 2:00 PM IST",
-        reason: "Tech enthusiasts and developers engage deeply during post-work hours and weekend hobby exploration."
-      },
-      Education: {
-        days: "Monday, Tuesday & Thursday",
-        time: "6:00 PM – 8:30 PM IST",
-        secondary: "11:30 AM – 1:00 PM IST",
-        reason: "Students and upskillers in India consume educational explainers right after academic or work commitments."
-      },
-      Finance: {
-        days: "Tuesday & Sunday",
-        time: "7:30 AM – 9:00 AM & 8:00 PM IST",
-        secondary: "1:15 PM – 2:30 PM IST",
-        reason: "Financial planning content earns highest saves when viewers have focused headspace to review money strategies."
+  const ai = new GoogleGenAI({
+    apiKey,
+    httpOptions: { headers: { "User-Agent": "aistudio-build" } }
+  });
+
+  const parts: any[] = [];
+
+  // Ingest full video or keyframes into Gemini multimodal pipeline
+  if (hasVideo) {
+    const cleanVideoBase64 = String(videoBase64).replace(/^data:[a-zA-Z0-9/.-]+;base64,/, "");
+    parts.push({
+      inlineData: {
+        mimeType: mimeType || "video/mp4",
+        data: cleanVideoBase64
       }
-    };
+    });
+    parts.push({
+      text: `[ATTACHED REEL VIDEO FILE: "${cleanFileName}" (${cleanFileSize}, duration: ${durationSec || 'unknown'}s, aspect ratio: ${aspectRatio || '9:16'})]`
+    });
+  }
 
-    const nicheIntel = bestDaysByNiche[cleanNiche] || {
-      days: "Tuesday & Thursday",
-      time: "7:30 PM – 9:00 PM IST",
-      secondary: "12:45 PM – 2:00 PM IST",
-      reason: `Peak activity for ${cleanAudience} in India occurs during evening commutes and post-dinner screen time.`
-    };
-
-    const whatAiNoticed = [
-      `You open with an immediate front-facing shot in the first 0.8s, establishing instant eye contact without delaying the subject.`,
-      `The initial concept is clearly stated, but visual pacing holds on the same angle for ~4.5s before the first angle or text shift.`,
-      `On-screen captions appear in the lower third, which risks slight overlap with Instagram's username and sound tags.`,
-      `Your tone is natural and conversational—preserving your personal creator voice rather than sounding like a corporate promo.`,
-      `The ending delivers the main insight, but resolves quickly without a 2-second interactive question or replay loop cue.`
-    ];
-
-    const timelineBreakdown = [
-      {
-        timestampRange: "00:00–00:02",
-        label: "HOOK",
-        tag: "👀 Close-Up Opening",
-        observation: "You jump straight into the core proposition within the first 2 seconds, avoiding slow title intros or unnecessary setup.",
-        strategicImpact: "Strong choice for stopping the scroll in the first 3 seconds when viewers swipe past."
-      },
-      {
-        timestampRange: "00:03–00:06",
-        label: "PACING",
-        tag: "⚠️ Attention Dip Risk",
-        observation: "The visual remains on a static shot for nearly 4 seconds while you explain the concept, with no B-roll or dynamic zoom.",
-        strategicImpact: "Creates the primary potential drop-off point where silent or rapid scrollers might lose momentum."
-      },
-      {
-        timestampRange: "00:07–00:11",
-        label: "PROGRESSION",
-        tag: "⚡ Information Delivery",
-        observation: "The explanation delivers practical value and key takeaways with clear energy and conviction.",
-        strategicImpact: "Maintains interest for engaged viewers who survived the initial 3-second filter."
-      },
-      {
-        timestampRange: "00:12–00:15",
-        label: "PAYOFF & CTA",
-        tag: "🔥 Value Payoff",
-        observation: "The final conclusion wraps up the core takeaway, but finishes abruptly without an explicit comment debate question.",
-        strategicImpact: "A final 1-line interactive question would boost comment velocity, signaling high discussion value to the algorithm."
+  if (Array.isArray(frames) && frames.length > 0) {
+    for (const frame of frames) {
+      if (frame && frame.base64) {
+        const cleanBase64 = String(frame.base64).replace(/^data:image\/[a-z]+;base64,/, "");
+        parts.push({
+          inlineData: {
+            mimeType: "image/jpeg",
+            data: cleanBase64
+          }
+        });
+        parts.push({
+          text: `[REEL KEYFRAME SNAPSHOT: "${frame.label || 'Frame'}" captured at timestamp ${frame.time || 0}s]`
+        });
       }
-    ];
+    }
+  }
 
-    return {
-      id: "reel_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7),
-      timestamp: Date.now(),
-      videoFileName: cleanFileName,
-      videoFileSizeFormatted: cleanFileSize,
-      analysisConfidence: "High",
-      analysisConfidenceReason: "Grounded in sequential frame framing, contrast inspection, and pacing evaluation",
-      creatorContext: {
-        followers: cleanFollowers,
-        averageViews: cleanAvgViews,
-        niche: cleanNiche,
-        targetAudience: cleanAudience
-      },
-      whatAiNoticed,
-      timelineBreakdown,
-      performanceInsights: {
-        creatorAverage: `${formatCount(avgViewsNum)} views`,
-        aiEstimatedRange: `${formatCount(lowEst)} – ${formatCount(highEst)} views`,
-        potentialUpside: `Up to ${formatCount(upsideEst)} views`,
-        explanation: `With your ${cleanNiche} baseline of ${formatCount(avgViewsNum)} views, this Reel has solid conceptual strength. Tightening the first 2 seconds and lifting captions out of Instagram's UI safe-zone will unlock maximum algorithmic push to ${cleanAudience}.`
-      },
-      contentDiagnosis: {
-        working: [
-          {
-            category: "Hook Architecture",
-            title: "Immediate Subject Focus",
-            explanation: "The opening frame introduces the core topic rapidly without dead air or slow title card transitions.",
-            status: "positive",
-            microBadge: "👀 Instant Eye Contact"
-          },
-          {
-            category: "Niche Resonance",
-            title: `High Context Fit for ${cleanNiche}`,
-            explanation: `The visual aesthetic and theme directly target search intent and curiosity triggers in ${cleanNiche}.`,
-            status: "positive",
-            microBadge: "🎯 High Context Fit"
-          },
-          {
-            category: "Visual Clarity",
-            title: "Crisp Center Framing",
-            explanation: "The focal point remains locked in the upper-middle frame, keeping viewer attention steady on mobile displays.",
-            status: "positive",
-            microBadge: "⚡ Crisp Framing"
-          }
-        ],
-        couldHurt: [
-          {
-            category: "Retention Pacing",
-            title: "Mid-Video Rhythm Plateau",
-            explanation: "Around the middle section, visual momentum slows down, posing a drop-off risk for fast-swiping viewers.",
-            status: "warning",
-            microBadge: "⚠️ Pacing Plateau"
-          },
-          {
-            category: "Text Placement",
-            title: "Instagram UI Overlay Hazard",
-            explanation: "On-screen text is placed near the lower third, risking obstruction from Instagram's username tag, caption, and audio title.",
-            status: "warning",
-            microBadge: "⚠️ Safe Zone Margin"
-          },
-          {
-            category: "Ending / Loop Potential",
-            title: "Abrupt Resolution Without Re-hook",
-            explanation: "The ending resolves quickly without a conversational prompt or loop cue to drive repeat views or comment debates.",
-            status: "warning",
-            microBadge: "⚠️ Low Comment Trigger"
-          }
-        ]
-      },
-      beforeYouPost: [
-        {
-          id: "rec_1",
-          number: "01",
-          title: "Strengthen the 0–2s kinetic text hook",
-          explanation: "Spikes initial 3-second hold rate for silent scrollers.",
-          detectedIssue: "Opening visual is steady without an immediate high-contrast question or bold text trigger.",
-          suggestedFix: "Overlay a bold, 2-line curiosity question in the upper safe zone at 0.3s (e.g., 'Stop making this mistake in 2025')."
-        },
-        {
-          id: "rec_2",
-          number: "02",
-          title: "Shift subtitles 15% higher into the vertical safe zone",
-          explanation: "Protects readability from Instagram's bottom caption and right-hand engagement icons.",
-          detectedIssue: "Subtitles sit too close to the bottom screen border.",
-          suggestedFix: "Keep all text strictly between 25% and 68% of the vertical screen height."
-        },
-        {
-          id: "rec_3",
-          number: "03",
-          title: "Add a 1-line interactive question in the final 2 seconds",
-          explanation: `Maximizes comment rate among ${cleanAudience} to signal strong discussion velocity to the algorithm.`,
-          detectedIssue: "Ending lacks an explicit call for viewer input.",
-          suggestedFix: 'End with a clear, low-friction question: "Which one do you use?" or "Comment GUIDE for the full breakdown."'
-        }
-      ],
-      postingIntelligence: {
-        bestDay: nicheIntel.days,
-        bestTimeIST: nicheIntel.time,
-        secondaryWindowIST: nicheIntel.secondary,
-        reasoning: nicheIntel.reason
-      },
-      trendSignals: {
-        nicheAlignment: {
-          label: "Niche Alignment",
-          score: "92%",
-          status: "strong",
-          summary: `Directly matches active search trends and curiosity in ${cleanNiche}.`
-        },
-        topicRelevance: {
-          label: "Topic Relevance",
-          score: "88%",
-          status: "strong",
-          summary: `High semantic interest for ${cleanAudience} in India.`
-        },
-        contentSignals: {
-          label: "Current Content Signals",
-          score: "84%",
-          status: "moderate",
-          summary: "Strong potential for saves and shares once retention pacing is sharpened."
-        }
-      },
-      summary: `${cleanNiche} Reel with strong visual clarity and concept appeal. Implementing the 0–2s hook text and safe-zone caption fixes will give it the best foundation to outperform your ${formatCount(avgViewsNum)} average reach.`
-    };
-  };
+  if (parts.length === 0) {
+    const noDataErr: any = new Error("No valid video data could be extracted for Reel analysis.");
+    noDataErr.statusCode = 400;
+    throw noDataErr;
+  }
 
-  if (apiKey) {
-    try {
-      const ai = new GoogleGenAI({
-        apiKey,
-        httpOptions: { headers: { "User-Agent": "aistudio-build" } }
-      });
+  const promptText = `You are ELEVATE AI — an experienced Instagram Reels Content Strategist & Video Director inside Elevate OS.
+You personally watched and listened to this uploaded Reel. You provide clear, encouraging, and razor-sharp feedback using natural creator language.
 
-      const contents: any[] = [];
+==================================================
+MANDATORY STRATEGIST DIRECTIVES (EVIDENCE-FIRST)
+==================================================
+1. YOU PERSONALLY WATCHED AND LISTENED TO THIS REEL:
+   - The uploaded video and audio stream are your EXCLUSIVE source of truth.
+   - The creator must feel like an expert director sat down with them and reviewed their actual video.
+   - Never give generic advice (e.g. NEVER say "Improve your hook" or "Improve pacing" without citing the exact detected moment).
+   - Quote the creator's actual spoken words, describe their exact camera framing/movement, lighting, on-screen text, and audio cues detected in THIS Reel.
+   - Before generating each recommendation, ask internally: "What EXACT thing in this Reel caused me to give this advice?"
 
-      // Multimodal Frame Injection: Add video keyframe snapshots if available
-      if (Array.isArray(frames) && frames.length > 0) {
-        for (const frame of frames) {
-          if (frame && frame.base64) {
-            const cleanBase64 = String(frame.base64).replace(/^data:image\/[a-z]+;base64,/, "");
-            contents.push({
-              inlineData: {
-                mimeType: "image/jpeg",
-                data: cleanBase64
-              }
-            });
-            contents.push({
-              text: `[REEL KEYFRAME SNAPSHOT: "${frame.label || 'Frame'}" captured at timestamp ${frame.time || 0}s of the uploaded video]`
-            });
-          }
-        }
-      }
+2. REMOVE ALL TECHNICAL JARGON:
+   - FORBIDDEN TERMS: Do NOT use "Stack Audit", "P0", "P1", "P2", "Priority Fix", "Forensic Analysis", "Content Diagnosis", "Technical Audit", "Performance Engineering", "Retention Architecture".
+   - USE NATURAL CREATOR LANGUAGE: "What's Working", "What's Holding It Back", "The 3 Changes I'd Make", "Your Hook", "Your Pacing", "Your Audio", "Your Ending", "Try This Instead", "Your Better Version", "Before You Post".
 
-      const promptText = `You are ELEVATE AI — the elite Instagram Reels & Short-Form Content Strategist inside Elevate OS.
-You evaluate short-form videos with the precision, depth, and practical craftsmanship of a seasoned human content director who actually watched the video.
+3. NO LONG REEL TIMELINE DUMPS:
+   - Do NOT output long 2-second timestamp breakdown tables. Use timestamps ONLY when they help pinpoint a specific problem or friction point (e.g. "At 0:03, the video stays on the same shot for too long").
 
-CRITICAL DIRECTIVE: "ELEVATE AI ACTUALLY WATCHED MY REEL."
-The uploaded video frames and timestamps are your PRIMARY SOURCE OF TRUTH.
-Do NOT output generic advice. Ground your analysis in exact visual composition, cuts, pacing shifts, facial framing, text overlays, and payoff timing observed in the provided snapshots.
+4. CREATOR CONTEXT & BENCHMARKING:
+   - Creator Profile: Niche = "${cleanNiche}", Followers = "${cleanFollowers}", Average Views = "${cleanAvgViews}" (${avgViewsNum.toLocaleString()} baseline), Target Audience = "${cleanAudience}" (IST timezone).
+   - Realistic Performance Outlook: Compare this Reel against their baseline of ${avgViewsNum.toLocaleString()} views (Potential: "Above your normal performance" | "Around your normal performance" | "Below your normal performance").
 
-CREATOR CONTEXT & METRICS:
-- Niche: ${cleanNiche}
-- Follower Count: ${cleanFollowers} (${followersNum.toLocaleString('en-IN')})
-- Average Views Per Reel: ${cleanAvgViews} (${avgViewsNum.toLocaleString('en-IN')})
-- Target Audience: ${cleanAudience} (Default market is India, IST timezone)
-- Video File: ${cleanFileName} (${cleanFileSize})
-${durationSec ? `- Video Duration: ${durationSec}s` : ''}
-${dimensions ? `- Video Resolution: ${dimensions} (${aspectRatio || '9:16'})` : ''}
-
-REQUIRED OUTPUT SECTIONS:
-
-1. "whatAiNoticed": 3 to 5 highly specific, video-grounded observations that could ONLY have been produced by examining this exact video.
-   Examples of the required depth:
-   - "You open with a close-up and immediately establish direct eye contact within the first 0.6s."
-   - "The first visual shift occurs around 2.2s, breaking visual monotony."
-   - "On-screen captions appear in the lower third, which risks overlap with Instagram's username and sound tags."
-   - "The Reel transitions from talking-head to demonstration footage around the midpoint."
-   - "The final takeaway resolves quickly without an interactive question in the closing 2 seconds."
-
-2. "timelineBreakdown": 3 to 6 chronological segments covering key moments across the Reel (e.g. 00:00–00:02 HOOK, 00:03–00:06 PACING, etc.).
-   Each segment MUST include:
-   - "timestampRange" (e.g. "00:00–00:02")
-   - "label" (e.g. "HOOK", "PACING", "VISUAL SHIFT", "PROGRESSION", "PAYOFF", "CALL TO ACTION")
-   - "tag" (e.g. "👀 Close-Up Opening", "⚡ Strongest Pattern Interrupt", "⚠️ Attention Dip Risk", "🔥 Climax Payoff", "🎯 Value Proposition", "😂 Joke Lands Here")
-   - "observation" (Exact description of what happens visually / spoken / textually)
-   - "strategicImpact" (Why it matters for viewer retention and algorithmic velocity)
-
-3. "analysisConfidence": "High" (or "Moderate" / "Limited") with "analysisConfidenceReason" summarizing what visual/timing cues were inspected.
-
-4. "performanceInsights":
-   - Baseline benchmark: Exactly "${formatCount(avgViewsNum)} views".
-   - "aiEstimatedRange" (e.g. "${formatCount(Math.round(avgViewsNum * 1.15))} – ${formatCount(Math.round(avgViewsNum * 2.5))} views") dynamically calculated from detected hook strength and pacing.
-   - "potentialUpside" (e.g. "Up to ${formatCount(Math.round(avgViewsNum * 4.2))} views") representing the achievable ceiling if fixes are applied.
-   - "explanation" with clear reasoning connecting the video's actual strengths/weaknesses to reach potential.
-
-5. "contentDiagnosis":
-   - "working": 3 to 4 specific positive strengths. Include "microBadge" for each (e.g. "👀 Instant Eye Contact", "⚡ Pattern Interrupt", "🎯 Niche Context").
-   - "couldHurt": 3 to 4 specific friction points. Include "microBadge" for each (e.g. "⚠️ Pacing Plateau", "⚠️ Safe Zone Margin", "⚠️ Low Comment Trigger").
-
-6. "beforeYouPost":
-   - 3 to 4 prioritized, highest-impact tactical changes.
-   - Each item MUST include: number ("01", "02", "03"), title, explanation, detectedIssue, suggestedFix.
-
-7. "postingIntelligence" (IST TIMEZONE):
-   - Best days, primary time window in IST, secondary window in IST, and audience psychological reasoning.
-
-8. "trendSignals":
-   - Niche alignment, topic relevance, and content signals.
-
-9. "summary":
-   - 1-2 punchy sentences summarizing the Reel's core opportunity and top priority before posting.
-
+==================================================
+REQUIRED OUTPUT SCHEMA (JSON)
+==================================================
 Return ONLY a valid JSON object matching this exact schema:
 {
   "id": "reel_${Date.now()}",
   "timestamp": ${Date.now()},
   "videoFileName": "${cleanFileName}",
   "videoFileSizeFormatted": "${cleanFileSize}",
+  "durationFormatted": "${durationSec ? Math.floor(durationSec / 60) + ':' + (Math.floor(durationSec % 60) < 10 ? '0' : '') + Math.floor(durationSec % 60) : '0:25'}",
+  "overallScore": 7.8,
+  "verdict": "One clear, honest sentence summarizing this Reel's core opportunity (e.g., 'Strong premise with high value, but the visual doesn't back up the opening hook quickly enough').",
+  
+  "creatorScores": {
+    "hook": { "score": 8, "explanation": "Your opening addresses the viewer directly, but visual proof is delayed by 1.5 seconds." },
+    "pacing": { "score": 6, "explanation": "The middle section stays on the same camera angle for 4 seconds without cut or movement." },
+    "value": { "score": 9, "explanation": "The actionable tip is practical, easy to grasp, and directly relevant to ${cleanNiche}." },
+    "visuals": { "score": 7, "explanation": "Good lighting and clear subject, but on-screen text sits close to the bottom interface." },
+    "audio": { "score": 8, "explanation": "Your voice delivery is crisp and clear with well-balanced background music." },
+    "ending": { "score": 5, "explanation": "Ends abruptly without a conversation-starting question or loop trigger." }
+  },
+
+  "whatsWorking": [
+    {
+      "title": "Clear and immediate topic promise",
+      "whatAiNoticed": "What the AI noticed: Quote or cite the exact visual or opening spoken words in 0-3s.",
+      "whyItHelps": "Why it helps: Explains how this immediately signals value to viewers in ${cleanNiche}."
+    },
+    {
+      "title": "Natural vocal presence & energy",
+      "whatAiNoticed": "What the AI noticed: Specific audio/spoken observation from this video.",
+      "whyItHelps": "Why it helps: Builds immediate creator rapport and authenticity."
+    },
+    {
+      "title": "Practical and actionable payoff",
+      "whatAiNoticed": "What the AI noticed: The specific takeaway or demonstration shown.",
+      "whyItHelps": "Why it helps: Gives viewers a compelling reason to bookmark and share."
+    }
+  ],
+
+  "whatsHoldingItBack": [
+    {
+      "title": "Visual delay on the opening promise",
+      "whatAiNoticed": "What I noticed: At 0:02, you state the core problem but the visual stays stationary.",
+      "whyItMatters": "Why it matters: Viewers need visual confirmation in under 2 seconds or they swipe away.",
+      "timestamp": "0:00–0:03"
+    },
+    {
+      "title": "Mid-video visual plateau",
+      "whatAiNoticed": "What I noticed: A 4-second stretch with no cut, angle change, or overlay.",
+      "whyItMatters": "Why it matters: Causes an attention dip during the explanation.",
+      "timestamp": "0:06–0:10"
+    },
+    {
+      "title": "Passive closing call to action",
+      "whatAiNoticed": "What I noticed: Ending with a generic or abrupt closing.",
+      "whyItMatters": "Why it matters: Misses the chance to trigger comment debates and boost algorithmic engagement.",
+      "timestamp": "End of video"
+    }
+  ],
+
+  "top3Changes": [
+    {
+      "number": 1,
+      "title": "Show the problem immediately in the first frame",
+      "whatToChange": "What I'd change: Replace the stationary intro with immediate visual evidence of what you're discussing.",
+      "tryThis": "Try this: Quote the exact improved spoken line or opening hook to say.",
+      "visualAndTextChange": "Visual edit: Cut directly to the action shot. Text: Place 3-word bold title at 40% screen height."
+    },
+    {
+      "number": 2,
+      "title": "Tighten the explanation with a quick B-roll cut",
+      "whatToChange": "What I'd change: Break up the middle monologue with a punch-in or b-roll overlay.",
+      "tryThis": "Try this: Trim 1.5 seconds of dead air and deliver the second tip without pausing.",
+      "visualAndTextChange": "Visual edit: 1.15x zoom cut at the transition point to reset viewer attention."
+    },
+    {
+      "number": 3,
+      "title": "Swap the generic ending for a specific debate question",
+      "whatToChange": "What I'd change: Replace 'Follow for more' with a question directly tied to the topic.",
+      "tryThis": "Try this: End with a specific question relevant to this Reel's core insight.",
+      "visualAndTextChange": "Visual edit: Hold the final takeaway card for 0.8s so the video loops seamlessly back to the start."
+    }
+  ],
+
+  "betterVersion": {
+    "newHook": "Exact rewritten hook line preserving the creator's voice and personality.",
+    "bodyStructure": "Concise 2-part structure that delivers the core takeaway without fluff.",
+    "betterEnding": "Engaging question or prompt that sparks comments and loops naturally.",
+    "notes": "Why this version retains attention better while sounding 100% natural."
+  },
+
+  "audioAndEditing": {
+    "voice": "Vocal tone is confident; pace is slightly fast at ~140 WPM with clear articulation.",
+    "music": "Background track sits nicely under the voice without drowning out words.",
+    "soundEffects": "Adding a subtle whoosh or pop on the key takeaway text would heighten retention.",
+    "pauses": "Trim the 0.6s silence between point 1 and point 2.",
+    "cutsAndTransitions": "Use a 1.1x punch-in cut midway to reset visual focus.",
+    "captions": "Raise text overlay 40px higher so it is not obstructed by the Instagram audio tag."
+  },
+
+  "beforeYouPostChecklist": [
+    "Fix the opening: Show the visual subject within the first 1.5 seconds",
+    "Tighten the middle: Trim the 0.6s pause during the main explanation",
+    "Raise the caption overlay so it sits well above the bottom navigation",
+    "Replace the closing CTA with a direct question to drive comments",
+    "Ensure the final frame transitions smoothly into the first frame for replay loops"
+  ],
+
+  "nextReelIdeas": [
+    {
+      "title": "Natural Part 2 / Follow-up Idea",
+      "concept": "A direct companion Reel that builds on this topic (e.g., 'The only 2 exceptions to this rule').",
+      "whyItWorksNext": "Captures the audience already interested in this Reel's core concept."
+    },
+    {
+      "title": "Contrarian / Behind-the-Scenes Angle",
+      "concept": "Show the alternative approach or how you personally implemented this solution.",
+      "whyItWorksNext": "Deepens authority and trust within ${cleanNiche}."
+    }
+  ],
+
+  "performanceOutlook": {
+    "creatorBaseline": "${formatCount(avgViewsNum)} views",
+    "potential": "Above your normal performance",
+    "explanation": "With a tightened opening visual and the middle pacing trimmed, this topic has strong save and share dynamics to beat your baseline of ${formatCount(avgViewsNum)} views.",
+    "formatNote": "This format works well in ${cleanNiche}. Opening with the demonstration before talking is currently driving high hold rates."
+  },
+
   "analysisConfidence": "High",
-  "analysisConfidenceReason": "Grounded in sequential frame framing, contrast inspection, and pacing evaluation",
+  "analysisConfidenceReason": "Grounded in multimodal video and audio inspection",
   "creatorContext": {
     "followers": "${cleanFollowers}",
     "averageViews": "${cleanAvgViews}",
@@ -728,43 +801,35 @@ Return ONLY a valid JSON object matching this exact schema:
     "targetAudience": "${cleanAudience}"
   },
   "whatAiNoticed": [
-    "Observation 1 from actual frames",
-    "Observation 2 from actual frames",
-    "Observation 3 from actual frames",
-    "Observation 4 from actual frames"
+    "Opening observation citing detected spoken words or visual gesture",
+    "Lighting and framing observation from this video",
+    "Pacing and cut timing observation from this video",
+    "Audio delivery and music balance observation from this video"
   ],
-  "timelineBreakdown": [
-    {
-      "timestampRange": "00:00–00:02",
-      "label": "HOOK",
-      "tag": "👀 Close-Up Opening",
-      "observation": "What happens in this segment",
-      "strategicImpact": "Impact on retention"
-    }
-  ],
+  "timelineBreakdown": [],
   "performanceInsights": {
     "creatorAverage": "${formatCount(avgViewsNum)} views",
-    "aiEstimatedRange": "string with view range",
-    "potentialUpside": "string with upside view ceiling",
-    "explanation": "string with clear reasoning"
+    "aiEstimatedRange": "${formatCount(Math.round(avgViewsNum * 1.1))} – ${formatCount(Math.round(avgViewsNum * 2.2))} views",
+    "potentialUpside": "Up to ${formatCount(Math.round(avgViewsNum * 3.5))} views",
+    "explanation": "Strong topic resonance in ${cleanNiche} with good delivery potential."
   },
   "contentDiagnosis": {
     "working": [
       {
-        "category": "Hook Architecture | Visual Clarity | Niche Relevance | Audio & Voice | Delivery",
-        "title": "Snappy Strength Title",
-        "explanation": "Clear explanation of what works",
+        "category": "Hook & Value",
+        "title": "Clear Topic Promise",
+        "explanation": "The video establishes immediate value for the viewer.",
         "status": "positive",
-        "microBadge": "👀 Instant Eye Contact"
+        "microBadge": "👀 Topic Clarity"
       }
     ],
     "couldHurt": [
       {
-        "category": "Retention Pacing | Text Placement | Ending / Loop Potential | Engagement Trigger",
-        "title": "Snappy Friction Title",
-        "explanation": "Clear explanation of the bottleneck",
+        "category": "Retention & Pacing",
+        "title": "Mid-Video Attention Dip",
+        "explanation": "Pacing can be tightened to prevent viewer swiping.",
         "status": "warning",
-        "microBadge": "⚠️ Pacing Plateau"
+        "microBadge": "⚠️ Pacing Friction"
       }
     ]
   },
@@ -772,85 +837,107 @@ Return ONLY a valid JSON object matching this exact schema:
     {
       "id": "rec_1",
       "number": "01",
-      "title": "Action Title",
-      "explanation": "Why this change matters",
-      "detectedIssue": "Specific issue observed",
-      "suggestedFix": "Precise practical fix"
+      "title": "Tighten Opening Visual",
+      "explanation": "Ensures viewer retention in the first 2 seconds.",
+      "detectedIssue": "Slight visual delay on the promise.",
+      "suggestedFix": "Cut straight to the action."
     }
   ],
   "postingIntelligence": {
-    "bestDay": "e.g. Tuesday & Thursday",
-    "bestTimeIST": "e.g. 7:30 PM – 9:00 PM IST",
-    "secondaryWindowIST": "e.g. 12:45 PM – 2:00 PM IST",
-    "reasoning": "Contextual reason for ${cleanAudience} in India"
+    "bestDay": "Tuesday & Thursday",
+    "bestTimeIST": "7:30 PM – 9:00 PM IST",
+    "secondaryWindowIST": "12:45 PM – 2:00 PM IST",
+    "reasoning": "Optimized for ${cleanAudience} active scrolling windows."
   },
   "trendSignals": {
-    "nicheAlignment": {
-      "label": "Niche Alignment",
-      "score": "92%",
-      "status": "strong",
-      "summary": "Summary text"
-    },
-    "topicRelevance": {
-      "label": "Topic Relevance",
-      "score": "88%",
-      "status": "strong",
-      "summary": "Summary text"
-    },
-    "contentSignals": {
-      "label": "Current Content Signals",
-      "score": "84%",
-      "status": "moderate",
-      "summary": "Summary text"
-    }
+    "nicheAlignment": { "label": "Niche Alignment", "score": "92%", "status": "strong", "summary": "Direct fit for ${cleanNiche} audience." },
+    "topicRelevance": { "label": "Topic Relevance", "score": "88%", "status": "strong", "summary": "High curiosity trigger." },
+    "contentSignals": { "label": "Format Signals", "score": "85%", "status": "strong", "summary": "Proven short-form structure." }
   },
-  "summary": "1-2 sentence executive summary"
+  "summary": "1-2 sentence strategist verdict on this Reel's core strength and top change before posting."
 }`;
 
-      contents.push({ text: promptText });
+  parts.push({ text: promptText });
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3.7-flash",
-        contents,
-      });
+  console.log(`[ELEVATE AI API] Calling Gemini 3.6 Flash for Reel analysis with ${parts.length} content parts...`);
 
-      const responseText = response.text || "";
-      const parsedData = parseCleanJSON(responseText);
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3.6-flash",
+      contents: [{ role: "user", parts }],
+      config: {
+        responseMimeType: "application/json",
+        temperature: 0.3,
+      },
+    });
 
-      if (parsedData && parsedData.performanceInsights && parsedData.contentDiagnosis) {
-        return {
-          success: true,
-          isAI: true,
-          result: {
-            ...parsedData,
-            id: parsedData.id || "reel_" + Date.now(),
-            timestamp: Date.now(),
-            videoFileName: cleanFileName,
-            videoFileSizeFormatted: cleanFileSize,
-            analysisConfidence: parsedData.analysisConfidence || "High",
-            analysisConfidenceReason: parsedData.analysisConfidenceReason || "Grounded in sequential frame inspection and pacing evaluation",
-            whatAiNoticed: Array.isArray(parsedData.whatAiNoticed) && parsedData.whatAiNoticed.length > 0 ? parsedData.whatAiNoticed : generateFallbackResult().whatAiNoticed,
-            timelineBreakdown: Array.isArray(parsedData.timelineBreakdown) && parsedData.timelineBreakdown.length > 0 ? parsedData.timelineBreakdown : generateFallbackResult().timelineBreakdown,
-            creatorContext: {
-              followers: cleanFollowers,
-              averageViews: cleanAvgViews,
-              niche: cleanNiche,
-              targetAudience: cleanAudience
-            }
-          }
-        };
+    const responseText = response.text || "";
+    console.log(`[ELEVATE AI API] Gemini 3.6 Flash response received (${responseText.length} characters).`);
+
+    const parsedData = parseCleanJSON(responseText);
+
+    if (parsedData && parsedData.performanceInsights && parsedData.contentDiagnosis) {
+      const finalResult = {
+        ...parsedData,
+        id: parsedData.id || "reel_" + Date.now(),
+        timestamp: Date.now(),
+        videoFileName: cleanFileName,
+        videoFileSizeFormatted: cleanFileSize,
+        analysisConfidence: parsedData.analysisConfidence || "High",
+        analysisConfidenceReason: parsedData.analysisConfidenceReason || "Grounded in multimodal video and audio inspection",
+        whatAiNoticed: Array.isArray(parsedData.whatAiNoticed) ? parsedData.whatAiNoticed : [],
+        timelineBreakdown: Array.isArray(parsedData.timelineBreakdown) ? parsedData.timelineBreakdown : [],
+        creatorContext: {
+          followers: cleanFollowers,
+          averageViews: cleanAvgViews,
+          niche: cleanNiche,
+          targetAudience: cleanAudience
+        }
+      };
+
+      // Save to Supabase analyses table if configured
+      const sb = getServerSupabase(env);
+      if (sb) {
+        Promise.resolve(
+          sb.from('analyses').insert({
+            id: finalResult.id,
+            user_id: userId || null,
+            session_id: effectiveUserId,
+            video_filename: cleanFileName,
+            video_file_size: cleanFileSize,
+            niche: cleanNiche,
+            estimated_range: finalResult.performanceInsights?.aiEstimatedRange || '',
+            summary: finalResult.summary || '',
+            creator_context: finalResult.creatorContext,
+            result: finalResult,
+            created_at: new Date().toISOString()
+          })
+        ).catch((err: any) => {
+          console.warn('Supabase analyses table insert warning:', err?.message || err);
+        });
       }
-    } catch (geminiError) {
-      console.error("Gemini Reel Analysis failed, falling back to rule engine:", geminiError);
-    }
-  }
 
-  // Graceful rule-based fallback
-  return {
-    success: true,
-    isAI: false,
-    result: generateFallbackResult()
-  };
+      console.log(`[ELEVATE AI API] Successfully processed and generated analysis for "${cleanFileName}".`);
+      return {
+        success: true,
+        isAI: true,
+        result: finalResult
+      };
+    }
+
+    console.error("[ELEVATE AI API ERROR] Failed to parse structured JSON from Gemini response:", responseText.slice(0, 300));
+    const parseErr: any = new Error("Unable to parse structured analysis from Gemini response. Please try again.");
+    parseErr.statusCode = 500;
+    throw parseErr;
+  } catch (err: any) {
+    if (err && err.statusCode) {
+      throw err;
+    }
+    console.error("[ELEVATE AI API ERROR] Gemini generation failure:", err?.message || err);
+    const apiError: any = new Error(`Gemini AI analysis failed: ${err?.message || "Internal generation error"}`);
+    apiError.statusCode = 500;
+    throw apiError;
+  }
 }
 
 export async function handleDiagnose(body: any, apiKey?: string) {
@@ -923,7 +1010,7 @@ Return ONLY a JSON object matching this exact schema:
 }`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.7-flash",
+        model: "gemini-3.6-flash",
         contents: systemInstruction,
         config: {
           responseMimeType: "application/json",
@@ -1086,6 +1173,18 @@ export default {
   async fetch(request: Request, env: any, ctx: any): Promise<Response> {
     const url = new URL(request.url);
 
+    // Standard CORS Headers for Worker environment
+    const corsHeaders: Record<string, string> = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, x-user-session-id",
+    };
+
+    // Handle CORS preflight requests
+    if (request.method === "OPTIONS") {
+      return new Response(null, { headers: corsHeaders });
+    }
+
     // Serve valid XML sitemap directly to avoid SPA rewrite
     if (url.pathname === "/sitemap.xml") {
       return new Response(SITEMAP_XML, {
@@ -1106,17 +1205,27 @@ export default {
       });
     }
 
+    // Health check endpoints for Worker / monitoring
+    if ((url.pathname === "/api/health" || url.pathname === "/health") && request.method === "GET") {
+      return Response.json({
+        status: "ok",
+        service: "elevateos-worker",
+        model: "gemini-3.6-flash",
+        timestamp: Date.now()
+      }, { headers: corsHeaders });
+    }
+
     // API endpoint for ELEVATE AI — 7-Day Creator Roadmap
     if (url.pathname === "/api/generate-roadmap" && request.method === "POST") {
       try {
         const body = await request.json().catch(() => ({}));
         const apiKey = env?.GEMINI_API_KEY || process.env?.GEMINI_API_KEY;
         const result = await handleGenerate7DayRoadmap(body, apiKey);
-        return Response.json(result);
+        return Response.json(result, { headers: corsHeaders });
       } catch (err: any) {
         return Response.json(
           { error: "Elevate AI couldn't build your roadmap right now. Please try again.", message: err?.message },
-          { status: 500 }
+          { status: 500, headers: corsHeaders }
         );
       }
     }
@@ -1127,12 +1236,23 @@ export default {
         const body = await request.json().catch(() => ({}));
         const apiKey = env?.GEMINI_API_KEY || process.env?.GEMINI_API_KEY;
         const result = await handleAnalyzeContent(body, apiKey);
-        return Response.json(result);
+        return Response.json(result, { headers: corsHeaders });
       } catch (err: any) {
         return Response.json(
           { error: "Elevate AI couldn't analyze this content right now. Please try again.", message: err?.message },
-          { status: 500 }
+          { status: 500, headers: corsHeaders }
         );
+      }
+    }
+
+    // API endpoint for Reel Analyzer monthly usage tracking
+    if (url.pathname === "/api/usage" && request.method === "GET") {
+      try {
+        const userId = url.searchParams.get("userId") || request.headers.get("x-user-session-id") || "guest";
+        const usage = await getUsageStatus(userId, env);
+        return Response.json(usage, { headers: corsHeaders });
+      } catch (err: any) {
+        return Response.json({ used: 0, limit: 5, monthYear: new Date().toISOString().slice(0, 7), canAnalyze: true }, { headers: corsHeaders });
       }
     }
 
@@ -1141,12 +1261,19 @@ export default {
       try {
         const body = await request.json().catch(() => ({}));
         const apiKey = env?.GEMINI_API_KEY || process.env?.GEMINI_API_KEY;
-        const result = await handleAnalyzeReel(body, apiKey);
-        return Response.json(result);
+        const sessionId = request.headers.get("x-user-session-id") || body.sessionId;
+        const result = await handleAnalyzeReel({ ...body, sessionId }, apiKey, env);
+        return Response.json(result, { headers: corsHeaders });
       } catch (err: any) {
+        const status = err?.statusCode || 500;
         return Response.json(
-          { error: "Elevate AI couldn't analyze this Reel right now. Please try again.", message: err?.message },
-          { status: 500 }
+          {
+            error: err?.message || "Elevate AI couldn't analyze this Reel right now. Please try again.",
+            limitReached: Boolean(err?.limitReached),
+            used: err?.used,
+            limit: err?.limit,
+          },
+          { status, headers: corsHeaders }
         );
       }
     }
@@ -1157,11 +1284,11 @@ export default {
         const body = await request.json().catch(() => ({}));
         const apiKey = env?.GEMINI_API_KEY || process.env?.GEMINI_API_KEY;
         const result = await handleDiagnose(body, apiKey);
-        return Response.json(result);
+        return Response.json(result, { headers: corsHeaders });
       } catch (err: any) {
         return Response.json(
           { error: "Failed to generate diagnosis", message: err?.message || "Internal server error" },
-          { status: 500 }
+          { status: 500, headers: corsHeaders }
         );
       }
     }
@@ -1173,17 +1300,17 @@ export default {
         const sheetUrl = env?.GOOGLE_SHEET_WEB_APP_URL || process.env?.GOOGLE_SHEET_WEB_APP_URL;
         const result = await handleBookStrategySession(body, sheetUrl);
         if ("error" in result && result.status) {
-          return Response.json({ error: result.error }, { status: result.status });
+          return Response.json({ error: result.error }, { status: result.status, headers: corsHeaders });
         }
-        return Response.json(result);
+        return Response.json(result, { headers: corsHeaders });
       } catch (err: any) {
-        return Response.json({ error: err?.message || "Internal server error" }, { status: 500 });
+        return Response.json({ error: err?.message || "Internal server error" }, { status: 500, headers: corsHeaders });
       }
     }
 
     // API endpoint to retrieve logged strategy submissions
     if (url.pathname === "/api/strategy-submissions" && request.method === "GET") {
-      return Response.json(getStrategySubmissions());
+      return Response.json(getStrategySubmissions(), { headers: corsHeaders });
     }
 
     // Serve static assets through Cloudflare Workers Assets
@@ -1191,7 +1318,7 @@ export default {
       return await env.ASSETS.fetch(request);
     }
 
-    return new Response("Not Found", { status: 404 });
+    return new Response("Not Found", { status: 404, headers: corsHeaders });
   }
 };
 
@@ -1205,7 +1332,39 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json());
+  // CORS middleware for Express
+  app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, x-user-session-id");
+    if (req.method === "OPTIONS") {
+      return res.sendStatus(200);
+    }
+    next();
+  });
+
+  // Support up to 100mb base64 payloads for direct video Reel analysis
+  app.use(express.json({ limit: "100mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "100mb" }));
+
+  app.get(["/api/health", "/health"], (req, res) => {
+    res.json({
+      status: "ok",
+      service: "elevateos-server",
+      model: "gemini-3.6-flash",
+      timestamp: Date.now()
+    });
+  });
+
+  app.get("/api/usage", async (req, res) => {
+    try {
+      const userId = (req.query.userId as string) || (req.headers["x-user-session-id"] as string) || "guest";
+      const usage = await getUsageStatus(userId);
+      return res.json(usage);
+    } catch {
+      return res.json({ used: 0, limit: 5, monthYear: new Date().toISOString().slice(0, 7), canAnalyze: true });
+    }
+  });
 
   app.post("/api/generate-roadmap", async (req, res) => {
     try {
@@ -1213,7 +1372,7 @@ async function startServer() {
       const result = await handleGenerate7DayRoadmap(req.body, apiKey);
       return res.json(result);
     } catch (error: any) {
-      console.error("7-Day Roadmap generation error:", error);
+      console.error("[EXPRESS API ERROR /api/generate-roadmap]:", error);
       return res.status(500).json({
         error: "Elevate AI couldn't build your roadmap right now. Please try again.",
         message: error?.message || "Internal server error"
@@ -1227,7 +1386,7 @@ async function startServer() {
       const result = await handleAnalyzeContent(req.body, apiKey);
       return res.json(result);
     } catch (error: any) {
-      console.error("Content analysis error:", error);
+      console.error("[EXPRESS API ERROR /api/analyze-content]:", error);
       return res.status(500).json({
         error: "Elevate AI couldn't analyze this content right now. Please try again.",
         message: error?.message || "Internal server error"
@@ -1236,15 +1395,20 @@ async function startServer() {
   });
 
   app.post("/api/analyze-reel", async (req, res) => {
+    console.log("[EXPRESS API] POST /api/analyze-reel received.");
     try {
       const apiKey = process.env.GEMINI_API_KEY;
-      const result = await handleAnalyzeReel(req.body, apiKey);
+      const sessionId = (req.headers["x-user-session-id"] as string) || req.body?.sessionId;
+      const result = await handleAnalyzeReel({ ...req.body, sessionId }, apiKey);
       return res.json(result);
     } catch (error: any) {
-      console.error("Reel analysis error:", error);
-      return res.status(500).json({
-        error: "Elevate AI couldn't analyze this Reel right now. Please try again.",
-        message: error?.message || "Internal server error"
+      console.error("[EXPRESS API ERROR /api/analyze-reel]:", error?.message || error);
+      const status = error?.statusCode || 500;
+      return res.status(status).json({
+        error: error?.message || "Elevate AI couldn't analyze this Reel right now. Please try again.",
+        limitReached: Boolean(error?.limitReached),
+        used: error?.used,
+        limit: error?.limit,
       });
     }
   });
@@ -1255,7 +1419,7 @@ async function startServer() {
       const result = await handleDiagnose(req.body, apiKey);
       return res.json(result);
     } catch (error: any) {
-      console.error("Diagnosis error:", error);
+      console.error("[EXPRESS API ERROR /api/diagnose]:", error);
       return res.status(500).json({
         error: "Failed to generate diagnosis",
         message: error?.message || "Internal server error"
@@ -1272,7 +1436,7 @@ async function startServer() {
       }
       return res.json(result);
     } catch (err: any) {
-      console.error("Booking error:", err);
+      console.error("[EXPRESS API ERROR /api/book-strategy-session]:", err);
       return res.status(500).json({ error: err?.message || "Internal server error" });
     }
   });

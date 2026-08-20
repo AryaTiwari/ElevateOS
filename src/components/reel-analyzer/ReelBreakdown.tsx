@@ -1,5 +1,4 @@
 import React from 'react';
-import { Clock, Film, Zap, AlertTriangle, CheckCircle, ArrowRight } from 'lucide-react';
 import { TimelineBreakdownSegment } from '../../types';
 
 interface ReelBreakdownProps {
@@ -45,8 +44,8 @@ export const ReelBreakdown: React.FC<ReelBreakdownProps> = ({ segments }) => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-400/10 border border-indigo-400/20 flex items-center justify-center text-indigo-400 shadow-inner">
-            <Film className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-indigo-400/10 border border-indigo-400/20 flex items-center justify-center text-xl shadow-inner">
+            <span>🎬</span>
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -73,7 +72,7 @@ export const ReelBreakdown: React.FC<ReelBreakdownProps> = ({ segments }) => {
             <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 mb-3 border-b border-white/5">
               <div className="flex items-center gap-2.5">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono font-medium text-amber-300">
-                  <Clock className="w-3.5 h-3.5 text-amber-400" />
+                  <span>⏱️</span>
                   <span>{seg.timestampRange}</span>
                 </div>
                 <span className={`text-[11px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-md border ${getLabelBadgeStyle(seg.label)}`}>
@@ -100,12 +99,13 @@ export const ReelBreakdown: React.FC<ReelBreakdownProps> = ({ segments }) => {
               </div>
 
               {seg.strategicImpact && (
-                <div className="pt-2 flex items-start gap-2 text-xs text-zinc-400 bg-white/[0.02] p-2.5 rounded-lg border border-white/5">
-                  <Zap className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-semibold text-zinc-300">Strategist Note: </span>
-                    <span>{seg.strategicImpact}</span>
-                  </div>
+                <div className="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-amber-400/90 block mb-1">
+                    Strategic Impact
+                  </span>
+                  <p className="text-xs text-zinc-300 leading-relaxed">
+                    {seg.strategicImpact}
+                  </p>
                 </div>
               )}
             </div>

@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import { CheckCircle2, AlertTriangle, Activity, Sparkles, Tag } from 'lucide-react';
 import { DiagnosisFinding } from '../../types';
 
 interface ContentDiagnosisProps {
@@ -13,7 +12,7 @@ export const ContentDiagnosis: React.FC<ContentDiagnosisProps> = memo(({ working
       {/* Section Header */}
       <div className="border-b border-slate-800/80 pb-4">
         <span className="text-[10px] font-black uppercase tracking-widest text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/30 inline-flex items-center gap-1 mb-1.5">
-          <Activity className="w-3 h-3 text-purple-400" />
+          <span>🔬</span>
           <span>DIAGNOSIS & RETENTION</span>
         </span>
         <h3 className="text-xl sm:text-2xl font-black text-white">
@@ -28,8 +27,8 @@ export const ContentDiagnosis: React.FC<ContentDiagnosisProps> = memo(({ working
         {/* WHAT'S WORKING */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
+            <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm">
+              <span>✅</span>
             </div>
             <h4 className="text-sm font-black uppercase tracking-wider text-emerald-400">
               What's Working
@@ -68,8 +67,8 @@ export const ContentDiagnosis: React.FC<ContentDiagnosisProps> = memo(({ working
         {/* WHAT COULD HURT PERFORMANCE */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
-              <AlertTriangle className="w-4 h-4" />
+            <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm">
+              <span>⚠️</span>
             </div>
             <h4 className="text-sm font-black uppercase tracking-wider text-amber-400">
               What Could Hurt Performance

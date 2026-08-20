@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { AuthProvider } from './context/AuthContext';
+import { AuthModal } from './components/auth/AuthModal';
 import { Navbar } from './components/Navbar';
 import { HomePage } from './components/HomePage';
 import { Footer } from './components/Footer';
@@ -119,131 +121,136 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen text-slate-100 font-sans selection:bg-pink-500/30 selection:text-pink-200 bg-[#0C111D] relative overflow-x-hidden">
-      {/* GEN Z FLOATING BACKGROUND GRAPHICS & SOCIAL MEDIA ACCENTS */}
-      <GenZBackground />
+    <AuthProvider>
+      <div className="min-h-screen text-slate-100 font-sans selection:bg-pink-500/30 selection:text-pink-200 bg-[#0C111D] relative overflow-x-hidden">
+        {/* GEN Z FLOATING BACKGROUND GRAPHICS & SOCIAL MEDIA ACCENTS */}
+        <GenZBackground />
 
-      <div className="relative z-10 flex flex-col min-h-screen">
-        {/* STICKY NAVBAR */}
-        <Navbar
-          currentRoute={route}
-          onNavigate={handleNavigate}
-          onOpenBooking={handleOpenBookingFreeSession}
-        />
+        <div className="relative z-10 flex flex-col min-h-screen">
+          {/* STICKY NAVBAR */}
+          <Navbar
+            currentRoute={route}
+            onNavigate={handleNavigate}
+            onOpenBooking={handleOpenBookingFreeSession}
+          />
 
-        {/* PAGE CONTENT CONTAINER */}
-        <main className="flex-1 w-[min(1120px,92%)] mx-auto py-8 sm:py-12 min-h-[70vh]">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={route}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-              className="gpu-layer"
-            >
-              <Suspense fallback={<RouteFallback />}>
-                {route === 'home' && (
-                  <HomePage
-                    onNavigate={handleNavigate}
-                    onOpenBooking={handleOpenBookingFreeSession}
-                  />
-                )}
+          {/* PAGE CONTENT CONTAINER */}
+          <main className="flex-1 w-[min(1120px,92%)] mx-auto py-8 sm:py-12 min-h-[70vh]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={route}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                className="gpu-layer"
+              >
+                <Suspense fallback={<RouteFallback />}>
+                  {route === 'home' && (
+                    <HomePage
+                      onNavigate={handleNavigate}
+                      onOpenBooking={handleOpenBookingFreeSession}
+                    />
+                  )}
 
-                {route === 'elevate-ai' && (
-                  <ElevateAIPage
-                    onOpenBooking={handleOpenBookingFreeSession}
-                    onOpenFlagship={handleOpenBookingUpgradeProgram}
-                    onNavigateToBlueprint={() => handleNavigate('blueprint')}
-                  />
-                )}
+                  {route === 'elevate-ai' && (
+                    <ElevateAIPage
+                      onOpenBooking={handleOpenBookingFreeSession}
+                      onOpenFlagship={handleOpenBookingUpgradeProgram}
+                      onNavigateToBlueprint={() => handleNavigate('blueprint')}
+                    />
+                  )}
 
-                {route === 'blueprint' && (
-                  <div className="w-full space-y-10">
-                    <div className="text-center max-w-3xl mx-auto space-y-3">
-                      <span className="inline-flex items-center gap-1.5 text-[11px] font-black text-pink-300 tracking-widest uppercase bg-pink-500/10 border border-pink-500/30 px-3.5 py-1.5 rounded-full shadow-xs">
-                        🎯 7-DAY CREATOR ROADMAP
-                      </span>
-                      <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-none">
-                        Your 7-Day <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-amber-300 bg-clip-text text-transparent">Creator Roadmap.</span> 🚀
-                      </h1>
-                      <p className="text-sm sm:text-base text-slate-300 font-medium leading-relaxed max-w-2xl mx-auto">
-                        Get quick, high-impact direction for your next 7 days based on your niche, stage, main goal, and biggest bottleneck.
-                      </p>
+                  {route === 'blueprint' && (
+                    <div className="w-full space-y-10">
+                      <div className="text-center max-w-3xl mx-auto space-y-3">
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-black text-pink-300 tracking-widest uppercase bg-pink-500/10 border border-pink-500/30 px-3.5 py-1.5 rounded-full shadow-xs">
+                          🎯 7-DAY CREATOR ROADMAP
+                        </span>
+                        <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-none">
+                          Your 7-Day <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-amber-300 bg-clip-text text-transparent">Creator Roadmap.</span> 🚀
+                        </h1>
+                        <p className="text-sm sm:text-base text-slate-300 font-medium leading-relaxed max-w-2xl mx-auto">
+                          Get quick, high-impact direction for your next 7 days based on your niche, stage, main goal, and biggest bottleneck.
+                        </p>
+                      </div>
+                      <SevenDayRoadmapTool onOpenBooking={handleOpenBookingFreeSession} />
                     </div>
-                    <SevenDayRoadmapTool onOpenBooking={handleOpenBookingFreeSession} />
-                  </div>
-                )}
+                  )}
 
-                {route === 'revenue' && (
-                  <RevenueCalculator
-                    onOpenBooking={handleOpenBookingFreeSession}
-                    onNavigateToBlueprint={() => handleNavigate('blueprint')}
-                  />
-                )}
+                  {route === 'revenue' && (
+                    <RevenueCalculator
+                      onOpenBooking={handleOpenBookingFreeSession}
+                      onNavigateToBlueprint={() => handleNavigate('blueprint')}
+                    />
+                  )}
 
-                {route === 'services' && (
-                  <ServicesPage
-                    onOpenBooking={handleOpenBookingFreeSession}
-                    onSelectService={handleSelectServiceFromCard}
-                  />
-                )}
+                  {route === 'services' && (
+                    <ServicesPage
+                      onOpenBooking={handleOpenBookingFreeSession}
+                      onSelectService={handleSelectServiceFromCard}
+                    />
+                  )}
 
-                {route === 'about' && (
-                  <AboutPage
-                    onOpenBooking={handleOpenBookingFreeSession}
-                  />
-                )}
-              </Suspense>
-            </motion.div>
+                  {route === 'about' && (
+                    <AboutPage
+                      onOpenBooking={handleOpenBookingFreeSession}
+                    />
+                  )}
+                </Suspense>
+              </motion.div>
+            </AnimatePresence>
+          </main>
+
+          {/* FOOTER */}
+          <Footer
+            onNavigate={handleNavigate}
+            onOpenBooking={handleOpenBookingFreeSession}
+            onOpenLegal={handleOpenLegal}
+          />
+
+          {/* INTAKE / BOOKING MODAL */}
+          <Suspense fallback={null}>
+            {bookingModalOpen && (
+              <BookingModal
+                isOpen={bookingModalOpen}
+                onClose={handleCloseBooking}
+                preselectedService={selectedServiceForBooking}
+              />
+            )}
+
+            {/* FLAGSHIP CREATOR UPGRADE PROGRAM INFO FUNNEL MODAL */}
+            {flagshipModalOpen && (
+              <FlagshipModal
+                isOpen={flagshipModalOpen}
+                onClose={handleCloseFlagship}
+              />
+            )}
+
+            {/* LEGAL DOCUMENTATION MODAL (PRIVACY & TERMS) */}
+            {legalModalOpen && (
+              <LegalModal
+                isOpen={legalModalOpen}
+                onClose={handleCloseLegal}
+                defaultTab={legalTab}
+              />
+            )}
+          </Suspense>
+
+          {/* SUPABASE AUTHENTICATION DIALOG */}
+          <AuthModal />
+
+          {/* FIRST-TIME VISIT CONSENT POPUP */}
+          <TermsConsentModal onOpenLegal={handleOpenLegal} />
+
+          {/* ELEVATE OS BRAND INITIAL LOADING SCREEN WITH CREATOR GRAPHICS */}
+          <AnimatePresence>
+            {showLoadingScreen && (
+              <ElevateLoadingScreen onComplete={() => setShowLoadingScreen(false)} />
+            )}
           </AnimatePresence>
-        </main>
-
-        {/* FOOTER */}
-        <Footer
-          onNavigate={handleNavigate}
-          onOpenBooking={handleOpenBookingFreeSession}
-          onOpenLegal={handleOpenLegal}
-        />
-
-        {/* INTAKE / BOOKING MODAL */}
-        <Suspense fallback={null}>
-          {bookingModalOpen && (
-            <BookingModal
-              isOpen={bookingModalOpen}
-              onClose={handleCloseBooking}
-              preselectedService={selectedServiceForBooking}
-            />
-          )}
-
-          {/* FLAGSHIP CREATOR UPGRADE PROGRAM INFO FUNNEL MODAL */}
-          {flagshipModalOpen && (
-            <FlagshipModal
-              isOpen={flagshipModalOpen}
-              onClose={handleCloseFlagship}
-            />
-          )}
-
-          {/* LEGAL DOCUMENTATION MODAL (PRIVACY & TERMS) */}
-          {legalModalOpen && (
-            <LegalModal
-              isOpen={legalModalOpen}
-              onClose={handleCloseLegal}
-              defaultTab={legalTab}
-            />
-          )}
-        </Suspense>
-
-        {/* FIRST-TIME VISIT CONSENT POPUP */}
-        <TermsConsentModal onOpenLegal={handleOpenLegal} />
-
-        {/* ELEVATE OS BRAND INITIAL LOADING SCREEN WITH CREATOR GRAPHICS */}
-        <AnimatePresence>
-          {showLoadingScreen && (
-            <ElevateLoadingScreen onComplete={() => setShowLoadingScreen(false)} />
-          )}
-        </AnimatePresence>
+        </div>
       </div>
-    </div>
+    </AuthProvider>
   );
 }

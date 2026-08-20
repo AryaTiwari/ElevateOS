@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import { Calendar, Clock, Globe, Sparkles } from 'lucide-react';
 import { ReelAnalysisResult } from '../../types';
 
 interface PostingIntelligenceProps {
@@ -13,7 +12,7 @@ export const PostingIntelligence: React.FC<PostingIntelligenceProps> = memo(({ p
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-4">
         <div>
           <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/30 inline-flex items-center gap-1 mb-1.5">
-            <Clock className="w-3 h-3 text-amber-400" />
+            <span>⏰</span>
             <span>TIMING INTELLIGENCE</span>
           </span>
           <h3 className="text-xl sm:text-2xl font-black text-white">
@@ -22,7 +21,7 @@ export const PostingIntelligence: React.FC<PostingIntelligenceProps> = memo(({ p
         </div>
 
         <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
-          <Globe className="w-3.5 h-3.5 text-pink-400" />
+          <span>🇮🇳</span>
           <span>Optimized for Indian Standard Time (IST)</span>
         </div>
       </div>
@@ -32,7 +31,7 @@ export const PostingIntelligence: React.FC<PostingIntelligenceProps> = memo(({ p
         {/* Best Day */}
         <div className="bg-[#0C111D]/80 border border-slate-800 p-4 sm:p-5 rounded-2xl space-y-1.5">
           <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
-            <Calendar className="w-3.5 h-3.5 text-pink-400" />
+            <span>📅</span>
             <span>Recommended Days</span>
           </div>
           <p className="text-base sm:text-lg font-black text-white">
@@ -47,10 +46,10 @@ export const PostingIntelligence: React.FC<PostingIntelligenceProps> = memo(({ p
         <div className="bg-gradient-to-b from-amber-500/10 to-[#0C111D]/90 border border-amber-500/30 p-4 sm:p-5 rounded-2xl space-y-1.5 shadow-lg shadow-amber-500/5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-black text-amber-300 uppercase tracking-wider">
-              <Clock className="w-3.5 h-3.5 text-amber-400" />
+              <span>⚡</span>
               <span>Prime Window (IST)</span>
             </div>
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>✨</span>
           </div>
           <p className="text-base sm:text-lg font-black text-amber-200">
             {posting.bestTimeIST}
@@ -63,7 +62,7 @@ export const PostingIntelligence: React.FC<PostingIntelligenceProps> = memo(({ p
         {/* Secondary Window */}
         <div className="bg-[#0C111D]/80 border border-slate-800 p-4 sm:p-5 rounded-2xl space-y-1.5">
           <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
-            <Clock className="w-3.5 h-3.5 text-purple-400" />
+            <span>🕒</span>
             <span>Secondary Window (IST)</span>
           </div>
           <p className="text-base sm:text-lg font-black text-white">
